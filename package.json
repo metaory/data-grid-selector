@@ -1,6 +1,6 @@
 {
   "name": "data-grid-selector",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A lightweight, framework-agnostic web component for interactive boolean data visualization with click and drag selection",
   "type": "module",
   "main": "DataGrid.js",

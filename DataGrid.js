@@ -24,9 +24,7 @@ class DataGrid extends HTMLElement {
     };
     
     this.data = {
-      grid: Array(this.config.rows).fill(null).map(() => 
-        Array(this.config.cols).fill(false)
-      ),
+      grid: Array(this.config.rows).fill(null).map(() => Array(this.config.cols).fill(false)),
       rowLabels: Array(this.config.rows).fill(null).map((_, i) => `Row ${i + 1}`),
       colLabels: Array(this.config.cols).fill(null).map((_, i) => `Col ${i + 1}`)
     };
@@ -79,12 +77,26 @@ class DataGrid extends HTMLElement {
         min-height: 300px;
         user-select: none;
         cursor: crosshair;
-        background: var(--grid-bg);
         font-family: inherit;
         font-size: 0.875rem;
         outline: none;
         display: flex;
         flex-direction: column;
+        
+        /* CSS Variables */
+        --grid-primary: #3b82f6;
+        --grid-bg: #ffffff;
+        --grid-cell-bg: #f8fafc;
+        --grid-border: #e2e8f0;
+        --grid-text: #1f2937;
+        --grid-text-muted: #64748b;
+        --grid-header-bg: #f1f5f9;
+        --grid-cell-size: 28px;
+        --grid-header-width: 80px;
+        --grid-hover-bg: #f1f5f9;
+        --grid-selection-bg: rgba(59, 130, 246, 0.25);
+        --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
+        background: var(--grid-bg);
       }
 
       .data-table {
@@ -175,7 +187,7 @@ class DataGrid extends HTMLElement {
       }
 
       .data-cell:hover {
-        background-color: var(--grid-hover-bg, #f3f4f6);
+        background-color: var(--grid-hover-bg);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transform: scale(1.05);
         z-index: 5;
@@ -187,7 +199,7 @@ class DataGrid extends HTMLElement {
       }
 
       .data-cell[data-selecting="true"] {
-        background-color: rgba(59, 130, 246, 0.2) !important;
+        background-color: var(--grid-selection-bg) !important;
         border: 2px solid var(--grid-primary) !important;
         border-radius: 8px;
         z-index: 10;
@@ -206,7 +218,6 @@ class DataGrid extends HTMLElement {
 
   bindEvents() {
     const grid = this.shadowRoot.querySelector('.data-grid');
-    
     grid.addEventListener('mousedown', this.handleMouseDown.bind(this));
     grid.addEventListener('mousemove', this.handleMouseMove.bind(this));
     grid.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -217,27 +228,22 @@ class DataGrid extends HTMLElement {
 
   handleMouseDown(e) {
     if (e.button !== 0) return;
-    
     const cell = this.getCellFromPoint(e.clientX, e.clientY);
     if (!this.isValidCell(cell)) return;
-    
     e.preventDefault();
     this.startDrag(cell);
   }
 
   handleMouseMove(e) {
     if (!this.state.isDragging) return;
-    
     const cell = this.getCellFromPoint(e.clientX, e.clientY);
     if (!this.isValidCell(cell)) return;
-    
     e.preventDefault();
     this.updateDrag(cell);
   }
 
   handleMouseUp(e) {
     if (!this.state.isDragging) return;
-    
     e.preventDefault();
     this.endDrag();
   }
@@ -263,7 +269,6 @@ class DataGrid extends HTMLElement {
       this.resetDrag();
       return;
     }
-    
     this.toggleSelection();
     this.dispatchChangeEvent();
     this.resetDrag();
@@ -283,38 +288,29 @@ class DataGrid extends HTMLElement {
 
   clearSelectionVisuals() {
     const cells = this.shadowRoot.querySelectorAll('.data-cell');
-    cells.forEach(cell => {
-      cell.removeAttribute('data-selecting');
-    });
+    cells.forEach(cell => cell.removeAttribute('data-selecting'));
   }
 
   getCellFromPoint(x, y) {
     const grid = this.shadowRoot.querySelector('.data-grid');
     const table = grid.querySelector('table');
     const tableRect = table.getBoundingClientRect();
-    
     const cells = table.querySelectorAll('td.data-cell');
     if (cells.length === 0) return { row: -1, col: -1 };
-    
     const firstCell = cells[0];
     const cellRect = firstCell.getBoundingClientRect();
     const cellWidth = cellRect.width;
     const cellHeight = cellRect.height;
-    
     const relativeX = x - tableRect.left;
     const relativeY = y - tableRect.top;
-    
     // Account for header row and column with proper spacing
     const headerHeight = 30 + 4; // header height + spacing
     const headerWidth = 80 + 4; // header width + spacing
-    
     const adjustedX = relativeX - headerWidth;
     const adjustedY = relativeY - headerHeight;
-    
     // Account for cell spacing (4px between cells)
     const col = Math.floor(adjustedX / (cellWidth + 4));
     const row = Math.floor(adjustedY / (cellHeight + 4));
-    
     return {
       row: Math.max(0, Math.min(this.config.rows - 1, row)),
       col: Math.max(0, Math.min(this.config.cols - 1, col))
@@ -328,13 +324,11 @@ class DataGrid extends HTMLElement {
 
   toggleSelection() {
     const bounds = this.getSelectionBounds();
-    
     for (let r = bounds.minRow; r <= bounds.maxRow; r++) {
       for (let c = bounds.minCol; c <= bounds.maxCol; c++) {
         this.data.grid[r][c] = !this.data.grid[r][c];
       }
     }
-    
     // Update visual state immediately
     this.updateCellStates();
   }
@@ -354,16 +348,13 @@ class DataGrid extends HTMLElement {
     const now = performance.now();
     if (now - this.state.lastUpdateTime < 16) return; // ~60fps
     this.state.lastUpdateTime = now;
-    
     const cells = this.shadowRoot.querySelectorAll('.data-cell');
     const bounds = this.getSelectionBounds();
-    
     cells.forEach(cell => {
       const row = parseInt(cell.dataset.row);
       const col = parseInt(cell.dataset.col);
       const shouldBeSelecting = this.isInSelection(row, col);
       const isCurrentlySelecting = cell.hasAttribute('data-selecting');
-      
       if (shouldBeSelecting !== isCurrentlySelecting) {
         if (shouldBeSelecting) {
           cell.setAttribute('data-selecting', 'true');
@@ -412,9 +403,7 @@ class DataGrid extends HTMLElement {
   }
 
   reset() {
-    this.data.grid = Array(this.config.rows).fill(null).map(() => 
-      Array(this.config.cols).fill(false)
-    );
+    this.data.grid = Array(this.config.rows).fill(null).map(() => Array(this.config.cols).fill(false));
     this.render();
   }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DataGrid Selector</title>
+  <title>DataGrid Selector - Demo</title>
   <style>
     @font-face {
       font-family: BungeeShade;
@@ -26,20 +26,6 @@
       color: #e2e8f0;
       height: 100vh;
       overflow: hidden;
-      
-      /* Default CSS variables for DataGrid */
-      --grid-primary: #3b82f6;
-      --grid-bg: #1e293b;
-      --grid-cell-bg: #2d3748;
-      --grid-border: #334155;
-      --grid-text: #f1f5f9;
-      --grid-text-muted: #94a3b8;
-      --grid-header-bg: #0f172a;
-      --grid-cell-size: 28px;
-      --grid-header-width: 60px;
-      --grid-hover-bg: #334155;
-      --grid-selection-bg: rgba(59, 130, 246, 0.25);
-      --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
     }
 
     /* Custom scrollbar styling */
@@ -121,7 +107,6 @@
     }
 
     .grid-container {
-      /* flex: 1; */
       background: #1e293b;
       border-radius: 12px;
       padding: 20px;
@@ -129,24 +114,6 @@
       min-height: 0;
       overflow: auto;
       position: relative;
-    }
-
-    /* Dark theme overrides for DataGrid */
-    data-grid {
-      --grid-primary: #3b82f6;
-      --grid-bg: #1e293b;
-      --grid-border: #334155;
-      --grid-text: #f1f5f9;
-      --grid-text-muted: #94a3b8;
-      --grid-header-bg: #0f172a;
-      --grid-cell-size: 28px;
-      --grid-header-width: 60px;
-      --grid-hover-bg: #334155;
-      --grid-selection-bg: rgba(59, 130, 246, 0.25);
-      --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
-      width: 100%;
-      height: 100%;
-      display: block;
     }
 
     .controls {
@@ -374,9 +341,18 @@
     </div>
 
     <div class="usage-section">
-      <h3>Usage</h3>
+      <h3>Usage Examples</h3>
       <div class="code-block">
-        <pre><code>&lt;data-grid rows="31" cols="24"&gt;&lt;/data-grid&gt;</code></pre>
+        <pre><code>// Simple setup
+const grid = document.querySelector('data-grid');
+grid.data = Array(31).fill(null).map(() => Array(24).fill(false));
+grid.rowLabels = Array.from({length: 31}, (_, i) => `Day ${i + 1}`);
+grid.colLabels = Array.from({length: 24}, (_, i) => `${i}h`);
+
+// Listen for changes
+grid.addEventListener('dataChange', (e) => {
+  console.log('Data changed:', e.detail);
+});</code></pre>
       </div>
     </div>
   </div>
@@ -385,20 +361,15 @@
   <script type="module">
     import DataGrid from './DataGrid.js';
 
-    // Mobile warning functions
+    // Mobile warning
     window.dismissWarning = () => {
-      const warning = document.getElementById('mobileWarning');
-      warning.classList.add('hidden');
+      document.getElementById('mobileWarning').classList.add('hidden');
     };
 
-    // Show mobile warning if needed
     const showMobileWarning = () => {
       const isMobile = window.innerWidth < 768;
       const warning = document.getElementById('mobileWarning');
-      
-      isMobile 
-        ? warning.classList.remove('hidden')
-        : warning.classList.add('hidden');
+      isMobile ? warning.classList.remove('hidden') : warning.classList.add('hidden');
     };
 
     showMobileWarning();
@@ -408,13 +379,10 @@
     const gridContainer = document.querySelector('.grid-container');
     const currentTheme = 'dark';
 
-    // Create day labels (1-31)
+    // Initialize grid
     const dayLabels = Array.from({length: 31}, (_, i) => `Day ${i + 1}`);
-    
-    // Create hour labels (0-23)
     const hourLabels = Array.from({length: 24}, (_, i) => `${i}h`);
 
-    // Set custom labels
     grid.setRowLabels(dayLabels);
     grid.setColLabels(hourLabels);
 
@@ -425,7 +393,7 @@
       status.textContent = `Active hours: ${activeCells} | Click and drag to toggle cells.`;
     });
 
-    // Global functions for buttons
+    // Global functions
     window.resetGrid = () => {
       grid.reset();
       status.textContent = 'Grid reset.';
@@ -451,14 +419,13 @@
       setTheme(newTheme);
     };
 
-    window.setTheme = (theme) => {
-      const body = document.body;
-      
-      const themes = {
-        dark: {
-          bg: '#0f172a',
-          color: '#e2e8f0',
-          containerBg: '#1e293b44',
+    // Theme configuration
+    const themes = {
+      dark: {
+        bg: '#0f172a',
+        color: '#e2e8f0',
+        containerBg: '#1e293b44',
+        gridVars: {
           '--grid-primary': '#3b82f6',
           '--grid-bg': '#1e293b44',
           '--grid-cell-bg': '#2d3748',
@@ -469,26 +436,30 @@
           '--grid-hover-bg': '#334155',
           '--grid-selection-bg': 'rgba(59, 130, 246, 0.25)',
           '--grid-selection-active-bg': 'rgba(59, 130, 246, 0.7)'
-        },
-        light: {
-          bg: '#f8fafc',
-          color: '#1e293b',
-          containerBg: '#ffffff44',
+        }
+      },
+      light: {
+        bg: '#f8fafc',
+        color: '#1e293b',
+        containerBg: '#ffffff44',
+        gridVars: {
           '--grid-primary': '#2563eb',
           '--grid-bg': '#ffffff44',
           '--grid-cell-bg': '#f1f5f9',
           '--grid-border': '#e2e8f0',
-          '--grid-text': '#1e293b',
+          '--grid-text': '#1f293b',
           '--grid-text-muted': '#64748b',
           '--grid-header-bg': '#f1f5f9',
           '--grid-hover-bg': '#f1f5f9',
           '--grid-selection-bg': 'rgba(37, 99, 235, 0.25)',
           '--grid-selection-active-bg': 'rgba(37, 99, 235, 0.7)'
-        },
-        purple: {
-          bg: '#0f0a23',
-          color: '#e9d5ff',
-          containerBg: '#1e1b4b',
+        }
+      },
+      purple: {
+        bg: '#0f0a23',
+        color: '#e9d5ff',
+        containerBg: '#1e1b4b',
+        gridVars: {
           '--grid-primary': '#8b5cf6',
           '--grid-bg': '#1e1b4b',
           '--grid-cell-bg': '#312e81',
@@ -499,11 +470,13 @@
           '--grid-hover-bg': '#312e81',
           '--grid-selection-bg': 'rgba(139, 92, 246, 0.25)',
           '--grid-selection-active-bg': 'rgba(139, 92, 246, 0.7)'
-        },
-        green: {
-          bg: '#022c22',
-          color: '#d1fae5',
-          containerBg: '#064e3b',
+        }
+      },
+      green: {
+        bg: '#022c22',
+        color: '#d1fae5',
+        containerBg: '#064e3b',
+        gridVars: {
           '--grid-primary': '#10b981',
           '--grid-bg': '#064e3b',
           '--grid-cell-bg': '#065f46',
@@ -515,27 +488,22 @@
           '--grid-selection-bg': 'rgba(16, 185, 129, 0.25)',
           '--grid-selection-active-bg': 'rgba(16, 185, 129, 0.7)'
         }
-      };
+      }
+    };
 
+    window.setTheme = (theme) => {
       const themeConfig = themes[theme];
+      const { bg, color, containerBg, gridVars } = themeConfig;
       
-      // Update body styles
-      body.style.background = themeConfig.bg;
-      body.style.color = themeConfig.color;
+      document.body.style.background = bg;
+      document.body.style.color = color;
+      gridContainer.style.background = containerBg;
       
-      // Update container background
-      gridContainer.style.background = themeConfig.containerBg;
-      
-      // Update CSS variables directly on the data-grid element
-      Object.entries(themeConfig).forEach(([property, value]) => {
-        if (property.startsWith('--')) {
-          grid.style.setProperty(property, value);
-        }
+      Object.entries(gridVars).forEach(([property, value]) => {
+        grid.style.setProperty(property, value);
       });
       
-      // Update grid theme
       grid.updateTheme();
-      
       status.textContent = `Switched to ${theme} theme.`;
     };
   </script>

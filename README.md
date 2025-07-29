@@ -1,6 +1,17 @@
-# DataGrid Selector
+<div align="center">
+  <h1>DataGrid Selector</h1>
+  <strong>
+    A lightweight, framework-agnostic web component
+  </strong>
+  <br>
+  for interactive boolean data visualization
+  <br>
+  Click and drag to toggle cells on/off with smooth selection feedback
+  <br>
+  <img valign="middle" src=".github/assets/gifcast.gif" alt="datagrid" width="80%" />
+</div>
 
-A lightweight, framework-agnostic web component for interactive boolean data visualization. Click and drag to toggle cells on/off with smooth selection feedback.
+---
 
 ## Features
 
@@ -192,4 +203,4 @@ data-grid {
 
 ## License
 
-MIT License
+[MIT](LICENSE)

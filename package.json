@@ -1,6 +1,6 @@
 {
   "name": "data-grid-selector",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "main": "./DataGrid.js",
   "exports": {
@@ -10,6 +10,7 @@
   "files": [
     "DataGrid.js",
     "index.html",
+    "LICENSE",
     "README.md"
   ],
   "scripts": {

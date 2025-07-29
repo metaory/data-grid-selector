@@ -1,0 +1,46 @@
+{
+  "name": "data-grid-selector",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./DataGrid.js",
+  "exports": {
+    ".": "./DataGrid.js",
+    "./demo": "./index.html"
+  },
+  "files": [
+    "DataGrid.js",
+    "index.html",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "npx vite",
+    "preview": "npx vite preview",
+    "build": "echo 'No build step needed - pure vanilla JS'"
+  },
+  "keywords": [
+    "data-grid",
+    "grid-selector",
+    "boolean-grid",
+    "web-component",
+    "framework-agnostic",
+    "vanilla-js",
+    "drag-selection",
+    "data-visualization",
+    "interactive-grid",
+    "css-variables"
+  ],
+  "author": "metaory",
+  "license": "MIT",
+  "description": "Framework-agnostic boolean data grid component with drag selection and customizable themes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metaory/data-grid-selector"
+  },
+  "bugs": {
+    "url": "https://github.com/metaory/data-grid-selector/issues"
+  },
+  "homepage": "https://metaory.github.io/data-grid-selector",
+  "devDependencies": {
+    "vite": "^7.0.6"
+  }
+}

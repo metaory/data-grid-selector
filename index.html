@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataGrid Selector</title>
+  <style>
+    @font-face {
+      font-family: BungeeShade;
+      font-style: normal;
+      font-display: swap;
+      font-weight: 400;
+      src: url(https://cdn.jsdelivr.net/fontsource/fonts/bungee-shade@latest/latin-400-normal.woff2) format('woff2');
+      unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      height: 100vh;
+      overflow: hidden;
+      
+      /* Default CSS variables for DataGrid */
+      --grid-primary: #3b82f6;
+      --grid-bg: #1e293b;
+      --grid-border: #334155;
+      --grid-text: #f1f5f9;
+      --grid-text-muted: #94a3b8;
+      --grid-header-bg: #0f172a;
+      --grid-cell-size: 28px;
+      --grid-header-width: 60px;
+      --grid-hover-bg: #334155;
+      --grid-selection-bg: rgba(59, 130, 246, 0.25);
+      --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
+    }
+
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 6px;
+      border: 2px solid #1e293b;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: #1e293b;
+    }
+
+    /* Firefox scrollbar */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #475569 #1e293b;
+    }
+
+    .container {
+      height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #f1f5f9;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: BungeeShade, monospace;
+    }
+
+    .github-link {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s ease;
+      z-index: 100;
+    }
+
+    .github-link:hover {
+      color: #f1f5f9;
+    }
+
+    .github-icon {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .grid-container {
+      /* flex: 1; */
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+    }
+
+    /* Dark theme overrides for DataGrid */
+    data-grid {
+      --grid-primary: #3b82f6;
+      --grid-bg: #1e293b;
+      --grid-border: #334155;
+      --grid-text: #f1f5f9;
+      --grid-text-muted: #94a3b8;
+      --grid-header-bg: #0f172a;
+      --grid-cell-size: 28px;
+      --grid-header-width: 60px;
+      --grid-hover-bg: #334155;
+      --grid-selection-bg: rgba(59, 130, 246, 0.25);
+      --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #334155;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .theme-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .theme-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    .theme-btn.dark {
+      background: #1e293b;
+      color: #3b82f6;
+    }
+
+    .theme-btn.light {
+      background: #f8fafc;
+      color: #2563eb;
+    }
+
+    .theme-btn.purple {
+      background: #1e1b4b;
+      color: #8b5cf6;
+    }
+
+    .theme-btn.green {
+      background: #064e3b;
+      color: #10b981;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      background: #1e40af;
+      border: none;
+      border-radius: 12px;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .usage-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .usage-section h3 {
+      margin-bottom: 15px;
+      color: #f1f5f9;
+      font-size: 1.1rem;
+    }
+
+    .code-block {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 15px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .code-block pre {
+      margin: 0;
+      color: #e2e8f0;
+    }
+
+    .code-block code {
+      background: none;
+      padding: 0;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>DataGrid Selector</h1>
+    </div>
+    
+    <a href="https://github.com/metaory/data-grid-selector" class="github-link" target="_blank" rel="noopener">
+      <svg class="github-icon" viewBox="0 0 24 24">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+      GitHub
+    </a>
+    
+    <div class="grid-container">
+      <data-grid 
+        rows="31" 
+        cols="24" 
+        title="Monthly Schedule">
+      </data-grid>
+    </div>
+
+    <div class="controls">
+      <button onclick="resetGrid()">Reset Grid</button>
+      <button onclick="getData()">Get Data</button>
+      <button onclick="setSampleData()">Set Sample Data</button>
+      <button onclick="toggleTheme()">Toggle Theme</button>
+      
+      <div class="theme-buttons">
+        <button class="theme-btn dark" onclick="setTheme('dark')">Dark</button>
+        <button class="theme-btn light" onclick="setTheme('light')">Light</button>
+        <button class="theme-btn purple" onclick="setTheme('purple')">Purple</button>
+        <button class="theme-btn green" onclick="setTheme('green')">Green</button>
+      </div>
+    </div>
+
+    <div class="status" id="status">
+      Ready. Click and drag to toggle cells. Each cell represents one hour.
+    </div>
+
+    <div class="usage-section">
+      <h3>Usage</h3>
+      <div class="code-block" id="html-code"></div>
+      <div class="code-block" id="js-code"></div>
+    </div>
+
+    <script type="text/plain" id="html-example">
+<data-grid 
+  rows="31" 
+  cols="24" 
+  title="Monthly Schedule">
+</data-grid>
+    </script>
+
+    <script type="text/plain" id="js-example">
+const grid = document.querySelector('data-grid')
+grid.addEventListener('dataChange', (e) => {
+  console.log('Data changed:', e.detail)
+})
+    </script>
+  </div>
+
+  <script type="module" src="https://unpkg.com/gradient-gl?seed=f3.9faa"></script>
+  <script type="module">
+    import DataGrid from './DataGrid.js';
+
+    // Shiki syntax highlighting
+    const highlightCode = async () => {
+      const { codeToHtml } = await import('https://esm.sh/shiki@3.0.0')
+      
+      const htmlExample = document.getElementById('html-example')
+      const jsExample = document.getElementById('js-example')
+      
+      const htmlCode = htmlExample.textContent
+      const jsCode = jsExample.textContent
+
+      const htmlHtml = await codeToHtml(htmlCode, {
+        lang: 'html',
+        theme: 'vitesse-dark',
+        transformers: [{ pre: node => (delete node.properties.style, node) }]
+      })
+      
+      const jsHtml = await codeToHtml(jsCode, {
+        lang: 'javascript',
+        theme: 'vitesse-dark',
+        transformers: [{ pre: node => (delete node.properties.style, node) }]
+      })
+
+      document.getElementById('html-code').innerHTML = htmlHtml
+      document.getElementById('js-code').innerHTML = jsHtml
+    }
+
+    highlightCode()
+
+    const grid = document.querySelector('data-grid');
+    const status = document.getElementById('status');
+    const gridContainer = document.querySelector('.grid-container');
+    let currentTheme = 'dark';
+
+    // Create day labels (1-31)
+    const dayLabels = Array.from({length: 31}, (_, i) => `Day ${i + 1}`);
+    
+    // Create hour labels (0-23)
+    const hourLabels = Array.from({length: 24}, (_, i) => `${i}h`);
+
+    // Set custom labels
+    grid.setRowLabels(dayLabels);
+    grid.setColLabels(hourLabels);
+
+    // Listen for data changes
+    grid.addEventListener('dataChange', (e) => {
+      const data = e.detail;
+      const activeCells = data.flat().filter(cell => cell).length;
+      status.textContent = `Active hours: ${activeCells} | Click and drag to toggle cells.`;
+    });
+
+    // Global functions for buttons
+    window.resetGrid = () => {
+      grid.reset();
+      status.textContent = 'Grid reset.';
+    };
+
+    window.getData = () => {
+      const data = grid.getData();
+      const activeCells = data.flat().filter(cell => cell).length;
+      status.textContent = `Total active hours: ${activeCells}`;
+      console.log('Grid data:', data);
+    };
+
+    window.setSampleData = () => {
+      const sampleData = Array(31).fill(null).map(() => 
+        Array(24).fill(null).map(() => Math.random() > 0.8)
+      );
+      grid.setData(sampleData);
+      status.textContent = 'Sample schedule data loaded.';
+    };
+
+    window.toggleTheme = () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(currentTheme);
+    };
+
+    window.setTheme = (theme) => {
+      currentTheme = theme;
+      const body = document.body;
+      
+      const themes = {
+        dark: {
+          bg: '#0f172a',
+          color: '#e2e8f0',
+          containerBg: '#1e293b44',
+          '--grid-primary': '#3b82f6',
+          '--grid-bg': '#1e293b44',
+          '--grid-border': '#334155',
+          '--grid-text': '#f1f5f9',
+          '--grid-text-muted': '#94a3b8',
+          '--grid-header-bg': '#0f172a',
+          '--grid-hover-bg': '#334155',
+          '--grid-selection-bg': 'rgba(59, 130, 246, 0.25)',
+          '--grid-selection-active-bg': 'rgba(59, 130, 246, 0.7)'
+        },
+        light: {
+          bg: '#f8fafc',
+          color: '#1e293b',
+          containerBg: '#ffffff44',
+          '--grid-primary': '#2563eb',
+          '--grid-bg': '#ffffff44',
+          '--grid-border': '#e2e8f0',
+          '--grid-text': '#1e293b',
+          '--grid-text-muted': '#64748b',
+          '--grid-header-bg': '#f1f5f9',
+          '--grid-hover-bg': '#f1f5f9',
+          '--grid-selection-bg': 'rgba(37, 99, 235, 0.25)',
+          '--grid-selection-active-bg': 'rgba(37, 99, 235, 0.7)'
+        },
+        purple: {
+          bg: '#0f0a23',
+          color: '#e9d5ff',
+          containerBg: '#1e1b4b',
+          '--grid-primary': '#8b5cf6',
+          '--grid-bg': '#1e1b4b',
+          '--grid-border': '#312e81',
+          '--grid-text': '#e9d5ff',
+          '--grid-text-muted': '#a78bfa',
+          '--grid-header-bg': '#0f0a23',
+          '--grid-hover-bg': '#312e81',
+          '--grid-selection-bg': 'rgba(139, 92, 246, 0.25)',
+          '--grid-selection-active-bg': 'rgba(139, 92, 246, 0.7)'
+        },
+        green: {
+          bg: '#022c22',
+          color: '#d1fae5',
+          containerBg: '#064e3b',
+          '--grid-primary': '#10b981',
+          '--grid-bg': '#064e3b',
+          '--grid-border': '#065f46',
+          '--grid-text': '#d1fae5',
+          '--grid-text-muted': '#6ee7b7',
+          '--grid-header-bg': '#022c22',
+          '--grid-hover-bg': '#065f46',
+          '--grid-selection-bg': 'rgba(16, 185, 129, 0.25)',
+          '--grid-selection-active-bg': 'rgba(16, 185, 129, 0.7)'
+        }
+      };
+
+      const themeConfig = themes[theme];
+      
+      // Update body styles
+      body.style.background = themeConfig.bg;
+      body.style.color = themeConfig.color;
+      
+      // Update container background
+      gridContainer.style.background = themeConfig.containerBg;
+      
+      // Update CSS variables directly on the data-grid element
+      Object.entries(themeConfig).forEach(([property, value]) => {
+        if (property.startsWith('--')) {
+          grid.style.setProperty(property, value);
+        }
+      });
+      
+      // Update grid theme
+      grid.updateTheme();
+      
+      status.textContent = `Switched to ${theme} theme.`;
+    };
+  </script>
+</body>
+</html>

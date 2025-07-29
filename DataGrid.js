@@ -13,7 +13,8 @@ class DataGrid extends HTMLElement {
     this.state = {
       isDragging: false,
       dragStart: null,
-      dragEnd: null
+      dragEnd: null,
+      lastUpdateTime: 0
     };
     
     this.config = {
@@ -78,7 +79,6 @@ class DataGrid extends HTMLElement {
         min-height: 300px;
         user-select: none;
         cursor: crosshair;
-        border: 1px solid var(--grid-border);
         background: var(--grid-bg);
         font-family: inherit;
         font-size: 0.875rem;
@@ -90,7 +90,7 @@ class DataGrid extends HTMLElement {
       .data-table {
         width: 100%;
         border-collapse: separate;
-        border-spacing: 0;
+        border-spacing: 4px;
         table-layout: fixed;
         background: var(--grid-bg);
         min-width: max-content;
@@ -98,13 +98,13 @@ class DataGrid extends HTMLElement {
 
       .data-table th,
       .data-table td {
-        border: 1px solid var(--grid-border);
+        border: none;
         padding: 0;
         text-align: center;
         vertical-align: middle;
         position: relative;
         margin: 0;
-        background: var(--grid-bg);
+        background: var(--grid-cell-bg);
         box-sizing: border-box;
       }
 
@@ -112,8 +112,7 @@ class DataGrid extends HTMLElement {
         width: var(--grid-header-width);
         height: 30px;
         background: var(--grid-header-bg);
-        border-right: 2px solid var(--grid-border);
-        border-bottom: 2px solid var(--grid-border);
+        border: none;
         color: var(--grid-text-muted);
         font-weight: 500;
         font-size: 0.75rem;
@@ -134,7 +133,7 @@ class DataGrid extends HTMLElement {
         writing-mode: vertical-rl;
         text-orientation: mixed;
         font-size: 0.75rem;
-        border-bottom: 2px solid var(--grid-border);
+        border: none;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -152,7 +151,7 @@ class DataGrid extends HTMLElement {
         font-weight: 500;
         text-align: left;
         padding: 0 4px;
-        border-right: 2px solid var(--grid-border);
+        border: none;
         font-size: 0.75rem;
         box-sizing: border-box;
         position: sticky;
@@ -167,10 +166,10 @@ class DataGrid extends HTMLElement {
         min-height: var(--grid-cell-size);
         transition: all 0.15s ease;
         cursor: pointer;
-        border-radius: 2px;
-        margin: 1px;
-        border: 1px solid var(--grid-border);
-        background: var(--grid-bg);
+        border-radius: 8px;
+        margin: 0;
+        border: none;
+        background: var(--grid-cell-bg);
         box-sizing: border-box;
         position: relative;
       }
@@ -184,22 +183,23 @@ class DataGrid extends HTMLElement {
 
       .data-cell[data-active="true"] {
         background-color: var(--grid-primary);
-        border-color: var(--grid-primary);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
 
       .data-cell[data-selecting="true"] {
-        background-color: var(--grid-selection-bg, rgba(99, 102, 241, 0.25)) !important;
+        background-color: rgba(59, 130, 246, 0.2) !important;
         border: 2px solid var(--grid-primary) !important;
-        border-radius: 4px;
+        border-radius: 8px;
         z-index: 10;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: scale(1.02);
       }
 
       .data-cell[data-active="true"][data-selecting="true"] {
-        background-color: var(--grid-selection-active-bg, rgba(99, 102, 241, 0.7)) !important;
+        background-color: var(--grid-primary) !important;
         border: 2px solid var(--grid-primary) !important;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transform: scale(1.02);
       }
     `;
   }
@@ -304,15 +304,16 @@ class DataGrid extends HTMLElement {
     const relativeX = x - tableRect.left;
     const relativeY = y - tableRect.top;
     
-    // Account for header row and column
-    const headerHeight = 30;
-    const headerWidth = 80;
+    // Account for header row and column with proper spacing
+    const headerHeight = 30 + 4; // header height + spacing
+    const headerWidth = 80 + 4; // header width + spacing
     
     const adjustedX = relativeX - headerWidth;
     const adjustedY = relativeY - headerHeight;
     
-    const col = Math.floor(adjustedX / cellWidth);
-    const row = Math.floor(adjustedY / cellHeight);
+    // Account for cell spacing (4px between cells)
+    const col = Math.floor(adjustedX / (cellWidth + 4));
+    const row = Math.floor(adjustedY / (cellHeight + 4));
     
     return {
       row: Math.max(0, Math.min(this.config.rows - 1, row)),
@@ -349,11 +350,27 @@ class DataGrid extends HTMLElement {
   }
 
   updateSelection() {
+    // Throttle updates for better performance (max 60fps)
+    const now = performance.now();
+    if (now - this.state.lastUpdateTime < 16) return; // ~60fps
+    this.state.lastUpdateTime = now;
+    
     const cells = this.shadowRoot.querySelectorAll('.data-cell');
+    const bounds = this.getSelectionBounds();
+    
     cells.forEach(cell => {
       const row = parseInt(cell.dataset.row);
       const col = parseInt(cell.dataset.col);
-      cell.setAttribute('data-selecting', this.isInSelection(row, col));
+      const shouldBeSelecting = this.isInSelection(row, col);
+      const isCurrentlySelecting = cell.hasAttribute('data-selecting');
+      
+      if (shouldBeSelecting !== isCurrentlySelecting) {
+        if (shouldBeSelecting) {
+          cell.setAttribute('data-selecting', 'true');
+        } else {
+          cell.removeAttribute('data-selecting');
+        }
+      }
     });
   }
 

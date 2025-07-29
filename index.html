@@ -252,9 +252,90 @@
       padding: 0;
       border: none;
     }
+
+    .mobile-warning {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .mobile-warning.hidden {
+      display: none;
+    }
+
+    .mobile-warning h2 {
+      color: #f1f5f9;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      font-family: BungeeShade, monospace;
+    }
+
+    .mobile-warning p {
+      color: #94a3b8;
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+
+    .mobile-warning .warning-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .mobile-warning button {
+      padding: 16px 32px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-warning .dismiss-btn {
+      background: white;
+      color: black;
+    }
+
+    .mobile-warning .dismiss-btn:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    @media (min-width: 768px) {
+      .mobile-warning {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="mobile-warning" id="mobileWarning">
+    <div style="font-size: 3rem; margin-bottom: 20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><path fill="currentColor" fill-rule="evenodd" d="M19 9v6a7 7 0 1 1-14 0V9a7 7 0 0 1 14 0m-7-4.75a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0V5a.75.75 0 0 1 .75-.75" clip-rule="evenodd"/></svg>
+      </div>
+    <h2>Desktop Only</h2>
+    <p>This component works best with a mouse. Touch interactions may be limited.</p>
+    <div class="warning-buttons">
+      <button class="dismiss-btn" onclick="dismissWarning()">Got it</button>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1>DataGrid Selector</h1>
@@ -304,10 +385,28 @@
   <script type="module">
     import DataGrid from './DataGrid.js';
 
+    // Mobile warning functions
+    window.dismissWarning = () => {
+      const warning = document.getElementById('mobileWarning');
+      warning.classList.add('hidden');
+    };
+
+    // Show mobile warning if needed
+    const showMobileWarning = () => {
+      const isMobile = window.innerWidth < 768;
+      const warning = document.getElementById('mobileWarning');
+      
+      isMobile 
+        ? warning.classList.remove('hidden')
+        : warning.classList.add('hidden');
+    };
+
+    showMobileWarning();
+
     const grid = document.querySelector('data-grid');
     const status = document.getElementById('status');
     const gridContainer = document.querySelector('.grid-container');
-    let currentTheme = 'dark';
+    const currentTheme = 'dark';
 
     // Create day labels (1-31)
     const dayLabels = Array.from({length: 31}, (_, i) => `Day ${i + 1}`);
@@ -348,12 +447,11 @@
     };
 
     window.toggleTheme = () => {
-      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      setTheme(currentTheme);
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
     };
 
     window.setTheme = (theme) => {
-      currentTheme = theme;
       const body = document.body;
       
       const themes = {

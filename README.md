@@ -8,7 +8,7 @@
   <br>
   Click and drag to toggle cells on/off with smooth selection feedback
   <br>
-  <img valign="middle" src=".github/assets/gifcast.gif" alt="datagrid" width="80%" />
+  <img valign="middle" src="https://raw.githubusercontent.com/metaory/data-grid-selector/refs/heads/master/.github/assets/gifcast.gif" alt="datagrid" width="80%" />
 </div>
 
 ---

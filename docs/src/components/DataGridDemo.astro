@@ -1,0 +1,263 @@
+---
+// DataGrid Demo Component
+---
+
+<div class="grid-container">
+  <data-grid rows="31" cols="24" title="Monthly Schedule"></data-grid>
+  <div class="status" id="status">
+    Ready. Click and drag to toggle cells. Each cell represents one hour.
+  </div>
+</div>
+
+<script>
+  import 'data-grid-selector';
+
+  // Performance monitoring
+  const startTime = performance.now();
+  console.log('🚀 DataGrid initialization started');
+
+  // Pure utility functions
+  const createLabels = (count, prefix) =>
+    Array.from({ length: count }, (_, i) => `${prefix} ${i + 1}`);
+
+  const getElement = selector => document.querySelector(selector);
+  const addClass = (element, className) => element?.classList.add(className);
+  const removeClass = (element, className) => element?.classList.remove(className);
+  const setText = (element, text) => element && (element.textContent = text);
+
+  // Initialize components
+  const grid = getElement('data-grid');
+  const status = getElement('#status');
+  const gridContainer = getElement('.grid-container');
+  let currentTheme = 'dark';
+
+  // Initialize grid with pure functions
+  const dayLabels = createLabels(31, 'Day');
+  const hourLabels = createLabels(24, 'H');
+
+  // Functional initialization
+  const initializeGrid = () => {
+    // Wait for grid to be fully initialized
+    if (grid && grid.setRowLabels) {
+      grid.setRowLabels(dayLabels);
+      grid.setColLabels(hourLabels);
+
+      // Apply initial theme immediately
+      setTheme(currentTheme);
+
+      const endTime = performance.now();
+      console.log(`⚡ DataGrid ready in ${(endTime - startTime).toFixed(2)}ms`);
+    } else {
+      // Retry if grid isn't ready yet
+      requestAnimationFrame(initializeGrid);
+    }
+  };
+
+  // Setup with retry mechanism
+  requestAnimationFrame(initializeGrid);
+
+  // Pure utility functions for data processing
+  const countActiveCells = data => data.flat().filter(cell => cell).length;
+  const createSampleData = () =>
+    Array(31)
+      .fill(null)
+      .map(() =>
+        Array(24)
+          .fill(null)
+          .map(() => Math.random() > 0.8)
+      );
+
+  // Event handlers - functional approach
+  const handleDataChange = e => {
+    const data = e.detail;
+    const activeCells = countActiveCells(data);
+    setText(status, `Active hours: ${activeCells} | Click and drag to toggle cells.`);
+  };
+
+  const resetGrid = () => {
+    grid.reset();
+    setText(status, 'Grid reset.');
+  };
+
+  const getData = () => {
+    const data = grid.getData();
+    const activeCells = countActiveCells(data);
+    setText(status, `Total active hours: ${activeCells}`);
+    console.log('Grid data:', data);
+  };
+
+  const setSampleData = () => {
+    const sampleData = createSampleData();
+    grid.setData(sampleData);
+    setText(status, 'Sample schedule data loaded.');
+  };
+
+  const toggleTheme = () => {
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  };
+
+  // Setup event listeners
+  grid.addEventListener('dataChange', handleDataChange);
+
+  // Theme configuration
+  const themes = {
+    dark: {
+      bg: '#0f172a',
+      color: '#e2e8f0',
+      containerBg: '#1e293b44',
+      gridVars: {
+        '--grid-primary': '#3b82f6',
+        '--grid-bg': '#1e293b44',
+        '--grid-cell-bg': '#2d3748',
+        '--grid-text': '#f1f5f9',
+        '--grid-text-muted': '#94a3b8',
+        '--grid-header-bg': '#0f172a',
+        '--grid-hover-bg': '#334155',
+        '--grid-selection-bg': 'rgba(59, 130, 246, 0.25)',
+        '--grid-selection-active-bg': 'rgba(59, 130, 246, 0.7)',
+      },
+    },
+    light: {
+      bg: '#f8fafc',
+      color: '#1e293b',
+      containerBg: '#ffffff44',
+      gridVars: {
+        '--grid-primary': '#2563eb',
+        '--grid-bg': '#ffffff44',
+        '--grid-cell-bg': '#f1f5f9',
+        '--grid-text': '#1e293b',
+        '--grid-text-muted': '#64748b',
+        '--grid-header-bg': '#f1f5f9',
+        '--grid-hover-bg': '#f1f5f9',
+        '--grid-selection-bg': 'rgba(37, 99, 235, 0.25)',
+        '--grid-selection-active-bg': 'rgba(37, 99, 235, 0.7)',
+      },
+    },
+    vivid: {
+      bg: '#EEAAFF',
+      color: '#330066',
+      containerBg: '#ffffff44',
+      gridVars: {
+        '--grid-primary': '#2563eb',
+        '--grid-bg': '#ffffff44',
+        '--grid-cell-bg': '#f1f5f9',
+        '--grid-text': '#1e293b',
+        '--grid-text-muted': '#64748b',
+        '--grid-header-bg': '#f1f5f9',
+        '--grid-hover-bg': '#f1f5f9',
+        '--grid-selection-bg': 'rgba(37, 99, 235, 0.25)',
+        '--grid-selection-active-bg': 'rgba(37, 99, 235, 0.7)',
+      },
+    },
+    purple: {
+      bg: '#0f0a23',
+      color: '#e9d5ff',
+      containerBg: '#1e1b4b',
+      gridVars: {
+        '--grid-primary': '#8b5cf6',
+        '--grid-bg': '#1e1b4b',
+        '--grid-cell-bg': '#312e81',
+        '--grid-text': '#e9d5ff',
+        '--grid-text-muted': '#a78bfa',
+        '--grid-header-bg': '#0f0a23',
+        '--grid-hover-bg': '#312e81',
+        '--grid-selection-bg': 'rgba(139, 92, 246, 0.25)',
+        '--grid-selection-active-bg': 'rgba(139, 92, 246, 0.7)',
+      },
+    },
+    green: {
+      bg: '#022c22',
+      color: '#d1fae5',
+      containerBg: '#064e3b',
+      gridVars: {
+        '--grid-primary': '#10b981',
+        '--grid-bg': '#064e3b',
+        '--grid-cell-bg': '#065f46',
+        '--grid-text': '#d1fae5',
+        '--grid-text-muted': '#6ee7b7',
+        '--grid-header-bg': '#022c22',
+        '--grid-hover-bg': '#065f46',
+        '--grid-selection-bg': 'rgba(16, 185, 129, 0.25)',
+        '--grid-selection-active-bg': 'rgba(16, 185, 129, 0.7)',
+      },
+    },
+    orange: {
+      bg: '#451a03',
+      color: '#fed7aa',
+      containerBg: '#7c2d12',
+      gridVars: {
+        '--grid-primary': '#f97316',
+        '--grid-bg': '#7c2d12',
+        '--grid-cell-bg': '#92400e',
+        '--grid-text': '#fed7aa',
+        '--grid-text-muted': '#fdba74',
+        '--grid-header-bg': '#451a03',
+        '--grid-hover-bg': '#92400e',
+        '--grid-selection-bg': 'rgba(249, 115, 22, 0.25)',
+        '--grid-selection-active-bg': 'rgba(249, 115, 22, 0.7)',
+      },
+    },
+  };
+
+  // Pure theme application function - optimized
+  const applyTheme = themeConfig => {
+    const { bg, color, containerBg, gridVars } = themeConfig;
+
+    document.body.style.background = bg;
+    document.body.style.color = color;
+    gridContainer.style.background = containerBg;
+    grid.updateTheme(gridVars);
+  };
+
+  const setTheme = async theme => {
+    const themeConfig = themes[theme];
+    applyTheme(themeConfig);
+
+    // Update active button state efficiently
+    const buttons = document.querySelectorAll('.theme-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.querySelector(`.theme-btn.${theme}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Only update status if theme actually changed
+    if (theme !== currentTheme) {
+      setText(status, `Switched to ${theme} theme.`);
+      currentTheme = theme;
+    }
+  };
+
+  // Expose functions to window only for button onclick handlers
+  // This is the minimal global pollution needed for HTML onclick attributes
+  window.resetGrid = resetGrid;
+  window.getData = getData;
+  window.setSampleData = setSampleData;
+  window.toggleTheme = toggleTheme;
+  window.setTheme = setTheme;
+</script>
+
+<style>
+  .grid-container {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    min-height: 400px;
+    overflow: hidden;
+    position: relative;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .status {
+    padding: 12px;
+    background: #2e3f77;
+    border: none;
+    border-radius: 12px;
+    color: #dbeafe;
+    font-size: 14px;
+    margin: 0;
+  }
+</style>

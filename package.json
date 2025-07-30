@@ -1,0 +1,43 @@
+{
+  "name": "data-grid-selector",
+  "version": "0.7.0",
+  "description": "🚧 A lightweight, framework-agnostic web component for interactive boolean data visualization with click and drag selection",
+  "type": "module",
+  "main": "DataGrid.js",
+  "exports": {
+    ".": "./DataGrid.js"
+  },
+  "files": [
+    "DataGrid.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "cd docs && npm run dev -- --host",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build"
+  },
+  "keywords": [
+    "web-component",
+    "data-grid",
+    "boolean-grid",
+    "interactive-grid",
+    "drag-selection",
+    "framework-agnostic",
+    "vanilla-js",
+    "css-variables",
+    "accessible",
+    "responsive"
+  ],
+  "author": "Metaory",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metaory/data-grid-selector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/metaory/data-grid-selector/issues"
+  },
+  "homepage": "https://github.com/metaory/data-grid-selector#readme",
+  "devDependencies": {}
+}

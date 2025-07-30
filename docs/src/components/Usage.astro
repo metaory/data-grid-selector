@@ -1,0 +1,140 @@
+---
+import { Code } from 'astro:components';
+const codeTheme = 'gruvbox-dark-hard'
+
+---
+
+<div class="usage-section">
+  <h2>Usage Examples</h2>
+  
+  <div class="usage-grid">
+    <div class="usage-item">
+      <h3>Simple Setup</h3>
+      <Code code={`// Simple setup
+const grid = document.querySelector('data-grid');
+grid.data = Array(31).fill(null).map(() => Array(24).fill(false));
+grid.rowLabels = Array.from({length: 31}, (_, i) => 'Day ' + (i + 1));
+grid.colLabels = Array.from({length: 24}, (_, i) => i + 'h');
+
+// Listen for changes
+grid.addEventListener('dataChange', (e) => {
+  console.log('Data changed:', e.detail);
+});`} lang="javascript" theme={codeTheme} />
+    </div>
+
+    <div class="usage-item">
+      <h3>Basic HTML</h3>
+      <Code code={`<data-grid
+  rows="7"
+  cols="24"
+  title="Weekly Schedule">
+</data-grid>
+
+<script>
+  const grid = document.querySelector('data-grid');
+  grid.addEventListener('dataChange', (e) => {
+    console.log('Data changed:', e.detail);
+  });
+</script>`} lang="html" theme={codeTheme} />
+    </div>
+
+    <div class="usage-item">
+      <h3>API Methods</h3>
+      <Code code={`// Get/set grid data
+grid.data = booleanArray;
+const data = grid.data;
+
+// Get/set row labels
+grid.rowLabels = ['Row 1', 'Row 2', ...];
+const rowLabels = grid.rowLabels;
+
+// Get/set column labels
+grid.colLabels = ['Col 1', 'Col 2', ...];
+const colLabels = grid.colLabels;
+
+// Reset to empty grid
+grid.reset();
+
+// Update theme
+grid.updateTheme();`} lang="javascript" theme={codeTheme} />
+    </div>
+
+    <div class="usage-item">
+      <h3>CSS Customization</h3>
+      <Code code={`data-grid {
+  --grid-primary: #3b82f6;
+  --grid-bg: #ffffff;
+  --grid-cell-bg: #f8fafc;
+  --grid-text: #1f2937;
+  --grid-text-muted: #64748b;
+  --grid-header-bg: #f1f5f9;
+  --grid-cell-size: 30px;
+  --grid-header-width: 80px;
+  --grid-hover-bg: #f1f5f9;
+  --grid-selection-bg: rgba(59, 130, 246, 0.25);
+  --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
+}`} lang="css" theme={codeTheme} />
+    </div>
+  </div>
+</div>
+
+<style>
+.usage-section {
+  padding: 2em;
+}
+
+h2 {
+  font-family: BungeeShade, monospace;
+  margin-bottom: 2rem;
+}
+
+.usage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.usage-item {
+  display: flex;
+  width: max-content;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(30, 41, 59, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.usage-item h3 {
+  font-family: Bungee, monospace;
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+pre.astro-code {
+  background: transparent !important;
+}
+
+/* Responsive layout for larger screens */
+@media (min-width: 1024px) {
+  .usage-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+  
+  .usage-item {
+    padding: 2rem;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1400px) {
+  .usage-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+  }
+}
+</style>

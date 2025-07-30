@@ -1,0 +1,21 @@
+---
+import Header from '../components/Header.astro';
+import Controls from '../components/Controls.astro';
+import MobileWarning from '../components/MobileWarning.astro';
+import Usage from '../components/Usage.astro';
+import DataGridDemo from '../components/DataGridDemo.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<MobileWarning />
+<Layout>
+  <Header />
+  
+  <div class="container">
+    <div class="main-content">
+      <DataGridDemo />
+      <Controls />
+    </div>
+    <Usage />
+  </div>
+</Layout> 

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		
+		<!-- Primary Meta Tags -->
+		<title>DataGrid Selector - Framework Agnostic Web Component</title>
+		<meta name="title" content="DataGrid Selector - Framework Agnostic Web Component" />
+		<meta name="description" content="A lightweight, framework-agnostic web component for boolean data visualization with drag selection, themes, and zero dependencies." />
+		<meta name="keywords" content="web component, data grid, visualization, boolean data, drag selection, vanilla js" />
+		<meta name="author" content="DataGrid Team" />
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://datagrid-selector.com/" />
+		<meta property="og:title" content="DataGrid Selector - Framework Agnostic Web Component" />
+		<meta property="og:description" content="A lightweight, framework-agnostic web component for boolean data visualization with drag selection, themes, and zero dependencies." />
+		<meta property="og:image" content="/og-image.png" />
+		
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://datagrid-selector.com/" />
+		<meta property="twitter:title" content="DataGrid Selector - Framework Agnostic Web Component" />
+		<meta property="twitter:description" content="A lightweight, framework-agnostic web component for boolean data visualization with drag selection, themes, and zero dependencies." />
+		<meta property="twitter:image" content="/og-image.png" />
+		
+		<!-- Additional Meta Tags -->
+		<meta name="robots" content="index, follow" />
+		<meta name="theme-color" content="#3b82f6" />
+		<link rel="canonical" href="https://datagrid-selector.com/" />
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+  @font-face {
+    font-family: BungeeShade;
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+    src: url(https://cdn.jsdelivr.net/fontsource/fonts/bungee-shade@latest/latin-400-normal.woff2)
+      format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+      U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+      U+FEFF, U+FFFD;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 6px;
+    border: 2px solid #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: #1e293b;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e293b;
+  }
+
+  .container {
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    place-content: space-around;
+    place-items: baseline;
+    gap: 20px;
+  }
+
+  /* Responsive layout for larger screens */
+  @media (min-width: 1024px) {
+    .main-content {
+      grid-template-columns: auto 300px;
+      gap: 30px;
+      align-items: start;
+    }
+  }
+
+
+
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    place-content: center;
+    place-items: baseline;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    background: #334155;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .theme-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .theme-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: none;
+  }
+
+  .theme-btn.dark {
+    background: #1e293b;
+    color: #3b82f6;
+  }
+
+  .theme-btn.light {
+    background: #f8fafc;
+    color: #2563eb;
+  }
+
+  .theme-btn.purple {
+    background: #1e1b4b;
+    color: #8b5cf6;
+  }
+
+  .theme-btn.green {
+    background: #064e3b;
+    color: #10b981;
+  }
+
+  .theme-btn.orange {
+    background: #7c2d12;
+    color: #f97316;
+  }
+
+  .theme-btn {
+    transition: all 0.2s ease;
+  }
+
+  .theme-btn.active {
+    box-shadow: 0 0 0 2px currentColor;
+    transform: scale(1.05);
+  }
+
+
+
+  .usage-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+
+  .usage-section h3 {
+    margin-bottom: 15px;
+    color: #f1f5f9;
+    font-size: 1.1rem;
+  }
+
+  .code-block {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .code-block pre {
+    margin: 0;
+    color: #e2e8f0;
+  }
+
+  .code-block code {
+    background: none;
+    padding: 0;
+    border: none;
+  }
+</style>
+

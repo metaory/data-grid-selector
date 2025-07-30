@@ -1,0 +1,140 @@
+
+<div class="logo-container">
+  <div class="logo-blob"></div>
+  <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="M8.5 17q.625 0 1.063-.437T10 15.5t-.437-1.062T8.5 14t-1.062.438T7 15.5t.438 1.063T8.5 17m0-7q.625 0 1.063-.437T10 8.5t-.437-1.062T8.5 7t-1.062.438T7 8.5t.438 1.063T8.5 10m7 7q.625 0 1.063-.437T17 15.5t-.437-1.062T15.5 14t-1.062.438T14 15.5t.438 1.063T15.5 17m0-7q.625 0 1.063-.437T17 8.5t-.437-1.062T15.5 7t-1.062.438T14 8.5t.438 1.063T15.5 10M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"/></svg>
+</div>
+<div class="header">
+  <h1>DataGrid Selector</h1>
+  <a
+    href="https://github.com/metaory/data-grid-selector"
+    class="github-link"
+    target="_blank"
+    rel="noopener"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="github-icon" viewBox="0 0 24 24" viewBox="0 0 24 24"><!-- Icon from Tabler Icons by Paweł Kuna - https://github.com/tabler/tabler-icons/blob/master/LICENSE --><path fill="currentColor" d="M5.315 2.1c.791-.113 1.9.145 3.333.966l.272.161l.16.1l.397-.083a13.3 13.3 0 0 1 4.59-.08l.456.08l.396.083l.161-.1c1.385-.84 2.487-1.17 3.322-1.148l.164.008l.147.017l.076.014l.05.011l.144.047a1 1 0 0 1 .53.514a5.2 5.2 0 0 1 .397 2.91l-.047.267l-.046.196l.123.163c.574.795.93 1.728 1.03 2.707l.023.295L21 9.5c0 3.855-1.659 5.883-4.644 6.68l-.245.061l-.132.029l.014.161l.008.157l.004.365l-.002.213L16 21a1 1 0 0 1-.883.993L15 22H9a1 1 0 0 1-.993-.883L8 21v-.734c-1.818.26-3.03-.424-4.11-1.878l-.535-.766c-.28-.396-.455-.579-.589-.644l-.048-.019a1 1 0 0 1 .564-1.918c.642.188 1.074.568 1.57 1.239l.538.769c.76 1.079 1.36 1.459 2.609 1.191L8 17.562l-.018-.168a5 5 0 0 1-.021-.824l.017-.185l.019-.12l-.108-.024c-2.976-.71-4.703-2.573-4.875-6.139l-.01-.31L3 9.5a5.6 5.6 0 0 1 .908-3.051l.152-.222l.122-.163l-.045-.196a5.2 5.2 0 0 1 .145-2.642l.1-.282l.106-.253a1 1 0 0 1 .529-.514l.144-.047z"/></svg>
+  </a>
+</div>
+
+<style>
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  padding: clamp(8px, 2vw, 10px);
+  background: #554488;
+  backdrop-filter: blur(10px);
+  mix-blend-mode: overlay;
+  min-height: 75px;
+}
+
+.logo-container {
+  position: fixed;
+  z-index: 10;
+  top: 8px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logo {
+  width: clamp(40px, 12vw, 58px);
+  height: clamp(40px, 12vw, 58px);
+  position: relative;
+  z-index: 2;
+  color: white;
+  transition: all 0.3s ease;
+  mix-blend-mode: multiply;
+}
+
+#logo:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+}
+
+.logo-blob {
+  position: absolute;
+  width: clamp(35px, 10vw, 50px);
+  height: clamp(35px, 10vw, 50px);
+  background: conic-gradient(from 0deg, #009494, #b1323b, #ba482e, #69314b, #0135a8, #009494);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: blobRotate 4s linear infinite;
+  filter: blur(8px);
+}
+
+h1 {
+  font-family: BungeeShade, monospace;
+  font-size: clamp(1rem, 4vw, 1.5rem);
+  font-weight: 600;
+  margin-left: clamp(3rem, 4rem, 5rem);
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #4ecdc4, #45b7d1, #ff6b6b 120%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: screen;
+  transition: all 0.3s ease;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+h1:hover {
+  filter: brightness(1.2) drop-shadow(0 0 12px #fff6);
+}
+
+.github-link {
+  position: fixed;
+  top: clamp(8px, 2vw, 10px);
+  right: clamp(20px, 5vw, 40px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: clamp(12px, 3vw, 14px);
+  transition: all 0.3s ease;
+  z-index: 1001;
+  mix-blend-mode: color-dodge;
+}
+
+.github-link:hover {
+  color: #ff00ff;
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 10px rgba(255, 0, 255, 0.5));
+}
+
+.github-icon {
+  width: clamp(32px, 10vw, 48px);
+  height: clamp(32px, 10vw, 48px);
+  fill: currentColor;
+  transition: all 0.3s ease;
+}
+
+@keyframes blobRotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.9);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Add top margin to body to account for fixed header */
+:global(body) {
+  padding-top: clamp(60px, 15vw, 80px);
+}
+</style>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="logo"
+   viewBox="0 0 150 150"
+   version="1.1"
+   width="150"
+   height="150"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <meshgradient
+       id="meshgradient97"
+       gradientUnits="userSpaceOnUse"
+       x="278.99997"
+       y="278.99997"
+       gradientTransform="translate(-278.99997,-278.99997)">
+      <meshrow
+         id="meshrow97">
+        <meshpatch
+           id="meshpatch97">
+          <stop
+             path="c 16.6667,0  33.3333,0  50,0"
+             style="stop-color:#ccbbee;stop-opacity:1"
+             id="stop97" />
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             style="stop-color:#ccbbee;stop-opacity:1"
+             id="stop98" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#4466dd;stop-opacity:1"
+             id="stop99" />
+          <stop
+             path="c 0,-16.6667  0,-33.3333  0,-50"
+             style="stop-color:#aa99ee;stop-opacity:1"
+             id="stop100" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch100">
+          <stop
+             path="c 16.6667,0  33.3333,0  50,0"
+             id="stop101" />
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop102" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#ff9922;stop-opacity:1"
+             id="stop103" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch103">
+          <stop
+             path="c 16.6667,0  33.3333,0  50,0"
+             id="stop104" />
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             style="stop-color:#ffddaa;stop-opacity:1"
+             id="stop105" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop106" />
+        </meshpatch>
+      </meshrow>
+      <meshrow
+         id="meshrow106">
+        <meshpatch
+           id="meshpatch106">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop107" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#ff4488;stop-opacity:1"
+             id="stop108" />
+          <stop
+             path="c 0,-16.6667  0,-33.3333  0,-50"
+             style="stop-color:#bbaaee;stop-opacity:1"
+             id="stop109" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch109">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop110" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#77ffbb;stop-opacity:1"
+             id="stop111" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch111">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop112" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#33ddbb;stop-opacity:1"
+             id="stop113" />
+        </meshpatch>
+      </meshrow>
+      <meshrow
+         id="meshrow113">
+        <meshpatch
+           id="meshpatch113">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop114" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop115" />
+          <stop
+             path="c 0,-16.6667  0,-33.3333  0,-50"
+             style="stop-color:#ffddaa;stop-opacity:1"
+             id="stop116" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch116">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop117" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#77ffbb;stop-opacity:1"
+             id="stop118" />
+        </meshpatch>
+        <meshpatch
+           id="meshpatch118">
+          <stop
+             path="c 0,16.6667  0,33.3333  0,50"
+             id="stop119" />
+          <stop
+             path="c -16.6667,0  -33.3333,0  -50,0"
+             style="stop-color:#aadddd;stop-opacity:1"
+             id="stop120" />
+        </meshpatch>
+      </meshrow>
+    </meshgradient>
+  </defs>
+  <path
+     fill="currentColor"
+     d="m 45.833331,116.66665 q 5.20833,0 8.85833,-3.64166 3.65,-3.64167 3.64166,-8.85834 -0.008,-5.216659 -3.64166,-8.849999 -3.63333,-3.63333 -8.85833,-3.65 -5.225,-0.0167 -8.85,3.65 -3.625,3.66667 -3.65,8.849999 -0.025,5.18334 3.65,8.85834 3.675,3.675 8.85,3.64166 m 0,-58.333329 q 5.20833,0 8.85833,-3.64166 3.65,-3.64167 3.64166,-8.85833 -0.008,-5.21667 -3.64166,-8.85 -3.63333,-3.63334 -8.85833,-3.65 -5.225,-0.0167 -8.85,3.65 -3.625,3.66666 -3.65,8.85 -0.025,5.18333 3.65,8.85833 3.675,3.675 8.85,3.64166 m 58.333319,58.333329 q 5.20834,0 8.85834,-3.64166 3.65,-3.64167 3.64166,-8.85834 -0.008,-5.216659 -3.64166,-8.849999 -3.63334,-3.63333 -8.85834,-3.65 -5.224999,-0.0167 -8.849999,3.65 -3.625,3.66667 -3.65,8.849999 -0.025,5.18334 3.65,8.85834 3.675,3.675 8.849999,3.64166 m 0,-58.333329 q 5.20834,0 8.85834,-3.64166 3.65,-3.64167 3.64166,-8.85833 -0.008,-5.21667 -3.64166,-8.85 -3.63334,-3.63334 -8.85834,-3.65 -5.224999,-0.0167 -8.849999,3.65 -3.625,3.66666 -3.65,8.85 -0.025,5.18333 3.65,8.85833 3.675,3.675 8.849999,3.64166 M 16.666661,149.99998 q -6.8750005,0 -11.7666605,-4.89166 Q 0.00833052,140.21665 5.175782e-7,133.33332 V 16.666661 Q 5.175782e-7,9.7916605 4.9000005,4.9000005 9.8000005,0.00833052 16.666661,5.1757814e-7 H 133.33332 q 6.875,0 11.775,4.89999998242186 4.9,4.9 4.89166,11.7666605 V 133.33332 q 0,6.875 -4.89166,11.775 -4.89167,4.9 -11.775,4.89166 z"
+     id="path2"
+     style="display:inline;mix-blend-mode:normal;fill:url(#meshgradient97);fill-opacity:1;stroke-width:1" />
+</svg>

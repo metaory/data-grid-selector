@@ -1,5 +1,8 @@
 <div align="center">
-  <h1>DataGrid Selector</h1>
+  <h1>
+    <img valign="middle" src=".github/assets/logo.png" alt="logo" height="48" />
+    DataGrid Selector
+  </h1>
   <strong>
     A lightweight, framework-agnostic web component
   </strong>

@@ -13,7 +13,7 @@
     "@fontsource/bungee": "^5.2.6",
     "@fontsource/bungee-shade": "^5.2.6",
     "astro": "^5.13.4",
-    "data-grid-selector": "^0.8.0",
+    "data-grid-selector": "^0.9.1",
     "iconify-icon": "^3.0.0"
   }
 }

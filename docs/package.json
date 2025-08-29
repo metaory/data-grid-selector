@@ -12,7 +12,8 @@
     "@fontsource/baloo-2": "^5.2.6",
     "@fontsource/bungee": "^5.2.6",
     "@fontsource/bungee-shade": "^5.2.6",
-    "data-grid-selector": "^0.7.0",
-    "astro": "^5.12.5"
+    "astro": "^5.13.4",
+    "data-grid-selector": "^0.8.0",
+    "iconify-icon": "^3.0.0"
   }
 }

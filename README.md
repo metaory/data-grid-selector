@@ -23,16 +23,12 @@
 - **Framework agnostic** - works in any project
 - **No dependencies** - pure vanilla JavaScript
 - **Accessible** with proper ARIA attributes
-- **Responsive design** with sticky headers
-- **Custom scrollbars** for better UX
-- **Functional API** with property getters/setters
-- **No wrapper needed** - use directly in any framework
+- **Desktop optimized** with sticky headers
+- **Basic touch support** for single-tap on mobile
 
 ## Demo
 
 🎮 **Live Demo**: [https://metaory.github.io/data-grid-selector](https://metaory.github.io/data-grid-selector)
-
-Try the interactive demo with different themes and see the component in action!
 
 ## Installation
 
@@ -42,7 +38,7 @@ npm install data-grid-selector
 
 ## Usage
 
-### Basic Usage
+### Basic Setup
 
 ```html
 <!DOCTYPE html>
@@ -51,26 +47,9 @@ npm install data-grid-selector
   <script type="module">
     import 'data-grid-selector';
   </script>
-  <style>
-    /* Customize with CSS variables */
-    data-grid {
-      --grid-primary: #3b82f6;
-      --grid-bg: #ffffff;
-      --grid-border: #e2e8f0;
-      --grid-text: #1f2937;
-      --grid-text-muted: #64748b;
-      --grid-header-bg: #f1f5f9;
-      --grid-cell-size: 30px;
-      --grid-header-width: 80px;
-    }
-  </style>
 </head>
 <body>
-  <data-grid 
-    rows="7" 
-    cols="24" 
-    title="Weekly Schedule">
-  </data-grid>
+  <data-grid></data-grid>
   
   <script>
     const grid = document.querySelector('data-grid');
@@ -82,84 +61,62 @@ npm install data-grid-selector
 </html>
 ```
 
-### Functional API
+### With Custom Data
 
 ```html
-<data-grid rows="31" cols="24" title="Monthly Schedule"></data-grid>
+<data-grid></data-grid>
 
 <script>
   const grid = document.querySelector('data-grid');
   
-  // Set data and labels
-  grid.setData(Array(31).fill(null).map(() => Array(24).fill(false)));
-  grid.setRowLabels(Array.from({length: 31}, (_, i) => `Day ${i + 1}`));
-  grid.setColLabels(Array.from({length: 24}, (_, i) => `${i}h`));
-  
-  grid.addEventListener('dataChange', (e) => {
-    console.log('Data changed:', e.detail);
+  grid.update({
+    data: Array(7).fill(null).map(() => Array(24).fill(false)),
+    rowLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    colLabels: Array.from({length: 24}, (_, i) => `${i}:00`)
   });
 </script>
 ```
 
-### Framework Integration (Svelte Example)
+### JavaScript Constructor
 
-```svelte
-<script>
-  import 'data-grid-selector';
-  
-  let gridElement;
-  let gridData = Array(7).fill(null).map(() => Array(24).fill(false));
-  
-  $effect(() => {
-    if (gridElement) {
-      gridElement.setData(gridData);
-      gridElement.setRowLabels(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
-      gridElement.setColLabels(Array.from({length: 24}, (_, i) => `${i}:00`));
-      
-      gridElement.addEventListener('dataChange', (e) => {
-        gridData = e.detail;
-      });
-    }
-  });
-</script>
+```javascript
+import DataGrid from 'data-grid-selector';
 
-<data-grid bind:this={gridElement} rows={7} cols={24}></data-grid>
+const grid = new DataGrid({
+  data: Array(31).fill(null).map(() => Array(24).fill(false)),
+  rowLabels: Array.from({length: 31}, (_, i) => `Day ${i + 1}`),
+  colLabels: Array.from({length: 24}, (_, i) => `${i}h`)
+});
+
+// ⚠️ Must append to DOM
+document.getElementById('container').appendChild(grid);
 ```
 
 ## API
 
-### Attributes
+### Constructor Options
 
-- `rows` - Number of rows (default: 30)
-- `cols` - Number of columns (default: 24)
-- `title` - Accessibility title (default: "Data Grid")
+```javascript
+const grid = new DataGrid({
+  data: boolean[][],           // 2D boolean array (default: 5x5 grid)
+  rowLabels: string[],          // Array of row labels
+  colLabels: string[],          // Array of column labels
+  onChange: function,           // Callback for data changes
+  debounceMs: number           // Debounce delay (default: 100ms)
+});
+```
 
 ### Methods
 
 ```javascript
-// Get/set grid data
-grid.setData(booleanArray);
+// Get current data
 const data = grid.getData();
 
-// Get/set row labels
-grid.setRowLabels(['Row 1', 'Row 2', ...]);
-
-// Get/set column labels
-grid.setColLabels(['Col 1', 'Col 2', ...]);
+// Update data and labels
+grid.update({ data: newData, rowLabels: [...], colLabels: [...] });
 
 // Reset to empty grid
 grid.reset();
-```
-
-### Theme Updates
-
-```javascript
-// Update theme with CSS variables
-grid.updateTheme({
-  '--grid-primary': '#3b82f6',
-  '--grid-bg': '#ffffff',
-  '--grid-cell-bg': '#f8fafc'
-});
 ```
 
 ### Events
@@ -171,58 +128,41 @@ grid.addEventListener('dataChange', (e) => {
 });
 ```
 
-## CSS Custom Properties
-
-Customize the appearance using CSS variables:
+## CSS Customization
 
 ```css
 data-grid {
   --grid-primary: #3b82f6;                    /* Active cell color */
   --grid-bg: #ffffff;                         /* Background color */
-  --grid-border: #e2e8f0;                     /* Border color */
+  --grid-cell-bg: #f8fafc;                    /* Cell background */
   --grid-text: #1f2937;                       /* Text color */
-  --grid-text-muted: #64748b;                 /* Muted text color */
-  --grid-header-bg: #f1f5f9;                  /* Header background */
-  --grid-cell-size: 30px;                     /* Cell size */
+  --grid-cell-size: 28px;                     /* Cell size */
   --grid-header-width: 80px;                  /* Header width */
-  --grid-hover-bg: #f1f5f9;                   /* Hover background */
-  --grid-selection-bg: rgba(59, 130, 246, 0.25); /* Selection background */
-  --grid-selection-active-bg: rgba(59, 130, 246, 0.7); /* Active selection */
+  --grid-cell-spacing: 4px;                   /* Cell spacing */
+  --grid-cell-radius: 8px;                    /* Cell border radius */
 }
 ```
 
 ## Examples
 
-### Monthly Schedule Grid
+### Monthly Schedule
 
 ```html
-<data-grid rows="31" cols="24" title="Monthly Schedule"></data-grid>
+<data-grid></data-grid>
 
 <script>
   const grid = document.querySelector('data-grid');
   
-  grid.setData(Array(31).fill(null).map(() => Array(24).fill(false)));
-  grid.setRowLabels(Array.from({length: 31}, (_, i) => `Day ${i + 1}`));
-  grid.setColLabels(Array.from({length: 24}, (_, i) => `${i}h`));
+  grid.update({
+    data: Array(31).fill(null).map(() => Array(24).fill(false)),
+    rowLabels: Array.from({length: 31}, (_, i) => `Day ${i + 1}`),
+    colLabels: Array.from({length: 24}, (_, i) => `${i}h`)
+  });
   
   grid.addEventListener('dataChange', (e) => {
     const activeHours = e.detail.flat().filter(cell => cell).length;
     console.log(`Active hours: ${activeHours}`);
   });
-</script>
-```
-
-### Attendance Tracker
-
-```html
-<data-grid rows="7" cols="24" title="Weekly Attendance"></data-grid>
-
-<script>
-  const grid = document.querySelector('data-grid');
-  
-  grid.setData(Array(7).fill(null).map(() => Array(24).fill(false)));
-  grid.setRowLabels(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
-  grid.setColLabels(Array.from({length: 24}, (_, i) => `${i}:00`));
 </script>
 ```
 
@@ -237,53 +177,19 @@ function AttendanceGrid({ data, onDataChange }) {
   
   useEffect(() => {
     if (gridRef.current) {
-      gridRef.current.setData(data);
-      gridRef.current.setRowLabels(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
-      gridRef.current.setColLabels(Array.from({length: 24}, (_, i) => `${i}:00`));
+      gridRef.current.update({
+        data: data,
+        rowLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        colLabels: Array.from({length: 24}, (_, i) => `${i}:00`)
+      });
       
       gridRef.current.addEventListener('dataChange', onDataChange);
     }
   }, [data, onDataChange]);
   
-  return <data-grid ref={gridRef} rows={5} cols={24} />;
+  return <data-grid ref={gridRef} />;
 }
 ```
-
-### Theme Switching
-
-```javascript
-// Apply different themes
-const themes = {
-  dark: {
-    '--grid-primary': '#3b82f6',
-    '--grid-bg': '#1e293b',
-    '--grid-cell-bg': '#2d3748',
-    '--grid-text': '#f1f5f9'
-  },
-  light: {
-    '--grid-primary': '#2563eb',
-    '--grid-bg': '#ffffff',
-    '--grid-cell-bg': '#f1f5f9',
-    '--grid-text': '#1f2937'
-  }
-};
-
-const applyTheme = (theme) => {
-  const grid = document.querySelector('data-grid');
-  Object.entries(themes[theme]).forEach(([property, value]) => {
-    grid.style.setProperty(property, value);
-  });
-  grid.updateTheme();
-};
-
-// Usage
-applyTheme('dark');
-```
-
-## Browser Support
-
-- Modern browsers with Web Components support
-- Chrome 67+, Firefox 63+, Safari 10.1+, Edge 79+
 
 ## License
 

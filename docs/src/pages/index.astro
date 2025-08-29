@@ -1,6 +1,5 @@
 ---
 import Header from '../components/Header.astro';
-import Controls from '../components/Controls.astro';
 import MobileWarning from '../components/MobileWarning.astro';
 import Usage from '../components/Usage.astro';
 import DataGridDemo from '../components/DataGridDemo.astro';
@@ -11,11 +10,19 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <Header />
   
-  <div class="container">
-    <div class="main-content">
-      <DataGridDemo />
-      <Controls />
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="main-content">
+        <DataGridDemo />
+      </div>
+      <Usage />
     </div>
-    <Usage />
   </div>
-</Layout> 
+</Layout>
+
+<style>
+  .page-wrapper {
+    width: 100%;
+    position: relative;
+  }
+</style> 

@@ -1,16 +1,4 @@
-/**
- * DataGrid - Framework Agnostic Web Component
- *
- * A standalone web component for boolean data visualization.
- * Uses CSS variables for styling - override them in your HTML.
- */
 
-// Pure utility functions
-const createGrid = (rows, cols) =>
-  Array(rows).fill(null).map(() => Array(cols).fill(false));
-
-const createLabels = (count, prefix) =>
-  Array.from({length: count}, (_, i) => prefix + i);
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -25,27 +13,19 @@ const throttle = (fn, delay) => {
   };
 };
 
-// Pure state management
 const createState = () => ({
   isDragging: false,
   dragStart: null,
-  dragEnd: null,
-  lastUpdateTime: 0
+  dragEnd: null
 });
 
-const createConfig = (element) => ({
-  rows: parseInt(element.getAttribute('rows')) || 30,
-  cols: parseInt(element.getAttribute('cols')) || 24,
-  title: element.getAttribute('title') || 'Data Grid'
+const createConfig = (options) => ({
+  debounceMs: options.debounceMs || 100
 });
 
-const createData = (rows, cols) => ({
-  grid: createGrid(rows, cols),
-  rowLabels: createLabels(rows, 'Row'),
-  colLabels: createLabels(cols, 'Col')
-});
+const createGrid = (rows, cols) =>
+  Array(rows).fill(null).map(() => Array(cols).fill(false));
 
-// Pure selection calculations
 const getSelectionBounds = (dragStart, dragEnd) => ({
   minRow: Math.min(dragStart.row, dragEnd.row),
   maxRow: Math.max(dragStart.row, dragEnd.row),
@@ -60,12 +40,17 @@ const isInSelection = (row, col, bounds) =>
 const isValidCell = (cell, rows, cols) =>
   cell.row >= 0 && cell.col >= 0 && cell.row < rows && cell.col < cols;
 
-// Pure DOM creation functions
 const createElement = (tag, className, attributes = {}) => {
   const element = document.createElement(tag);
   if (className) element.className = className;
-  Object.entries(attributes).forEach(([key, value]) =>
-    element.setAttribute(key, value));
+
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key === 'textContent') {
+      element.textContent = value;
+    } else {
+      element.setAttribute(key, value);
+    }
+  });
   return element;
 };
 
@@ -81,14 +66,11 @@ const createCell = (rowIndex, colIndex, isActive) => {
 
 const createRow = (rowData, rowIndex, rowLabel) => {
   const tr = createElement('tr');
-  const labelCell = createElement('td', 'row-label');
-  labelCell.textContent = rowLabel;
-  tr.appendChild(labelCell);
+  tr.appendChild(createElement('td', 'row-label', { textContent: rowLabel }));
 
   const fragment = document.createDocumentFragment();
-  rowData.forEach((cell, colIndex) => {
-    const cellElement = createCell(rowIndex, colIndex, cell);
-    fragment.appendChild(cellElement);
+  rowData.forEach((cellData, i) => {
+    fragment.appendChild(createCell(rowIndex, i, cellData));
   });
   tr.appendChild(fragment);
   return tr;
@@ -101,11 +83,11 @@ const createHeader = (colLabels) => {
   headerRow.appendChild(createElement('th', 'corner-cell'));
 
   const fragment = document.createDocumentFragment();
-  colLabels.forEach((label, index) => {
-    const th = createElement('th', 'col-label');
-    th.textContent = label;
-    th.setAttribute('data-col', index);
-    fragment.appendChild(th);
+  colLabels.forEach((label, i) => {
+    fragment.appendChild(createElement('th', 'col-label', {
+      textContent: label,
+      'data-col': i
+    }));
   });
   headerRow.appendChild(fragment);
 
@@ -119,8 +101,9 @@ const createTable = (grid, rowLabels, colLabels) => {
 
   const tbody = createElement('tbody');
   const fragment = document.createDocumentFragment();
-  grid.forEach((row, rowIndex) =>
-    fragment.appendChild(createRow(row, rowIndex, rowLabels[rowIndex])));
+  grid.forEach((rowData, i) => {
+    fragment.appendChild(createRow(rowData, i, rowLabels[i]));
+  });
   tbody.appendChild(fragment);
 
   table.appendChild(tbody);
@@ -128,29 +111,43 @@ const createTable = (grid, rowLabels, colLabels) => {
 };
 
 class DataGrid extends HTMLElement {
-  constructor() {
+  constructor(options = {}) {
     super();
     this.attachShadow({ mode: 'open' });
 
-    // Initialize with pure functions
-    this.state = createState();
-    this.config = createConfig(this);
-    this.data = createData(this.config.rows, this.config.cols);
+    const data = options.data || createGrid(5, 5);
+    this.rows = data.length;
+    this.cols = data[0].length;
 
-    // Cache for performance
+    const generateLabels = (length, prefix) =>
+      Array.from({ length }, (_, i) => `${prefix} ${i + 1}`);
+
+    this.data = {
+      grid: data,
+      rowLabels: options.rowLabels || generateLabels(this.rows, 'Row'),
+      colLabels: options.colLabels || generateLabels(this.cols, 'Col')
+    };
+
+    this.state = createState();
+    this.config = createConfig(options);
+
     this._styles = null;
     this._isInitialized = false;
     this._cellsCache = null;
     this._boundsCache = null;
+    this._headerHeight = null;
 
-    // Bind methods once
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
-
-    // Throttled update function
+    this.handleTouchStart = this.handleTouchStart.bind(this);
     this.throttledUpdateSelection = throttle(this.updateSelection.bind(this), 16);
+
+    if (options.onChange) {
+      this._debouncedOnChange = throttle(options.onChange, this.config.debounceMs);
+      this.addEventListener('dataChange', (e) => this._debouncedOnChange(e.detail));
+    }
   }
 
   connectedCallback() {
@@ -161,6 +158,7 @@ class DataGrid extends HTMLElement {
     if (this._isInitialized) return;
 
     this.render();
+    this.adjustColumnHeaderHeight();
     this.bindEvents();
     this._isInitialized = true;
   }
@@ -174,7 +172,7 @@ class DataGrid extends HTMLElement {
     const grid = createElement('div', 'data-grid', {
       'role': 'grid',
       'tabindex': '0',
-      'aria-label': this.config.title
+      'aria-label': 'Data Grid'
     });
 
     const table = createTable(this.data.grid, this.data.rowLabels, this.data.colLabels);
@@ -187,14 +185,23 @@ class DataGrid extends HTMLElement {
       this.shadowRoot.appendChild(grid);
     }
 
-    // Clear cache when DOM changes
     this._cellsCache = null;
+  }
+
+  adjustColumnHeaderHeight() {
+    const colLabels = this.shadowRoot.querySelectorAll('.col-label');
+    const maxTextWidth = Array.from(colLabels).reduce((max, label) =>
+      Math.max(max, label.scrollWidth), 0);
+
+    const headerHeight = maxTextWidth + 30;
+    this.shadowRoot.querySelector('thead').style.height = `${headerHeight}px`;
+
+    this._headerHeight = headerHeight;
   }
 
   getStyles() {
     return /*css*/`
       :host {
-        /* CSS Variables with fallbacks */
         --grid-primary: #3b82f6;
         --grid-bg: #ffffff;
         --grid-cell-bg: #f8fafc;
@@ -203,18 +210,17 @@ class DataGrid extends HTMLElement {
         --grid-header-bg: #f1f5f9;
         --grid-cell-size: 28px;
         --grid-header-width: 80px;
-        --grid-hover-bg: #f1f5f9;
+        --grid-cell-spacing: 4px;
+        --grid-cell-radius: 8px;
+        --grid-radius: 12px;
+
         --grid-selection-bg: rgba(59, 130, 246, 0.25);
         --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
-
-        /* Smooth theme transitions */
-        transition: all 0.2s ease;
+        --grid-selection-border: var(--grid-primary);
       }
 
       .data-grid {
         width: 100%;
-        height: 100%;
-        min-height: 300px;
         user-select: none;
         cursor: crosshair;
         font-family: inherit;
@@ -224,67 +230,78 @@ class DataGrid extends HTMLElement {
         flex-direction: column;
         background: var(--grid-bg);
         padding: 16px;
-        border-radius: 12px;
+        border-radius: var(--grid-radius);
       }
 
       .data-table {
-        width: max-content;
-        place-self: center;
+        width: fit-content;
         border-collapse: separate;
-        border-spacing: 4px;
-        table-layout: auto;
+        border-spacing: var(--grid-cell-spacing);
+        table-layout: fixed;
         background: var(--grid-bg);
-        min-width: max-content;
-      }
-
-      .data-table thead tr,
-      .data-table tbody tr {
-        display: table-row;
+        border-radius: var(--grid-radius);
+        max-width: none;
+        box-sizing: border-box;
+        overflow: visible;
       }
 
       .data-table th,
       .data-table td {
-        border: none;
-        padding: 0;
-        text-align: center;
-        vertical-align: middle;
-        position: relative;
-        margin: 0;
-        background: var(--grid-cell-bg);
         box-sizing: border-box;
-        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+      }
+
+      .data-table th:not(.corner-cell):not(.row-label),
+      .data-table td:not(.row-label) {
+        width: var(--grid-cell-size);
+        min-width: var(--grid-cell-size);
+        max-width: var(--grid-cell-size);
+        height: var(--grid-cell-size);
+        min-height: var(--grid-cell-size);
+        max-height: var(--grid-cell-size);
+      }
+
+      .data-table tbody {
+        width: 100%;
+      }
+
+
+
+      .data-table thead {
+        background: var(--grid-header-bg);
       }
 
       .corner-cell {
         width: var(--grid-header-width);
         height: 30px;
+        min-width: var(--grid-header-width);
+        max-width: var(--grid-header-width);
         background: var(--grid-header-bg);
-        border: 1px solid orange;
         color: var(--grid-text-muted);
+        border-radius: var(--grid-radius);
         font-weight: 500;
         font-size: 0.75rem;
         position: sticky;
         top: 0;
         left: 0;
         z-index: 10;
-        display: table-cell;
       }
 
       .col-label {
-        height: 30px;
         width: var(--grid-cell-size);
         min-width: var(--grid-cell-size);
         max-width: var(--grid-cell-size);
-        padding: 0 4px;
-        background: var(--grid-header-bg);
+        height: var(--grid-cell-size);
+        min-height: var(--grid-cell-size);
+        max-height: var(--grid-cell-size);
+        border-radius: var(--grid-cell-radius);
         color: var(--grid-text-muted);
+        padding: 0;
         font-weight: 500;
-        font-size: xx-small;
+        font-size: 0.7rem;
         font-family: monospace;
-        border: 1px solid blue;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         box-sizing: border-box;
         position: sticky;
         top: 0;
@@ -292,72 +309,72 @@ class DataGrid extends HTMLElement {
         display: table-cell;
         transform: rotate(-90deg);
         transform-origin: center;
+        text-align: center;
+        overflow: visible;
+        line-height: 1;
+        padding-bottom: 0;
       }
 
       .row-label {
         width: var(--grid-header-width);
         height: var(--grid-cell-size);
+        min-width: var(--grid-header-width);
+        max-width: var(--grid-header-width);
+        min-height: var(--grid-cell-size);
+        max-height: var(--grid-cell-size);
         background: var(--grid-header-bg);
         color: var(--grid-text-muted);
+        border-radius: var(--grid-cell-radius);
         font-weight: 500;
         text-align: left;
-        padding: 0 4px;
-        border: 1px solid purple;
+        padding: 0 10px;
         font-size: 0.75rem;
         box-sizing: border-box;
         position: sticky;
         left: 0;
         z-index: 5;
-        display: table-cell;
       }
 
       .data-cell {
         width: var(--grid-cell-size);
-        aspect-ratio: 1;
+        height: var(--grid-cell-size);
         min-width: var(--grid-cell-size);
         max-width: var(--grid-cell-size);
         min-height: var(--grid-cell-size);
-        transition: background-color 0.15s ease, transform 0.15s ease;
+        max-height: var(--grid-cell-size);
+        transition: background-color 0.15s ease;
         cursor: pointer;
-        border-radius: 8px;
-        margin: 0;
-        border: 1px solid green;
+        border-radius: var(--grid-cell-radius);
         background: var(--grid-cell-bg);
         box-sizing: border-box;
         position: relative;
+        flex-shrink: 0;
+        flex-grow: 0;
+      }
+
+      .data-cell[data-active] {
+        background-color: var(--grid-primary);
+      }
+
+      .data-cell[data-selecting] {
+        background-color: var(--grid-selection-bg);
+        border: 2px solid var(--grid-selection-border);
+        border-radius: var(--grid-cell-radius);
+        z-index: 10;
+        position: relative;
+      }
+
+      .data-cell[data-active][data-selecting] {
+        background-color: var(--grid-selection-active-bg);
       }
 
       .data-cell:hover {
-        background-color: var(--grid-hover-bg);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transform: scale(1.05);
+        filter: hue-rotate(40deg) brightness(1.5) saturate(2);
+        transform: scale(1.1);
         z-index: 5;
       }
 
-      .data-cell[data-active="true"] {
-        background-color: var(--grid-primary) !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
 
-      .data-cell:not([data-active="true"]) {
-        background-color: var(--grid-cell-bg) !important;
-      }
-
-      .data-cell[data-selecting="true"] {
-        background-color: var(--grid-selection-bg) !important;
-        border: 2px solid var(--grid-primary) !important;
-        border-radius: 8px;
-        z-index: 10;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transform: scale(1.02);
-      }
-
-      .data-cell[data-active="true"][data-selecting="true"] {
-        background-color: var(--grid-primary) !important;
-        border: 2px solid var(--grid-primary) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        transform: scale(1.02);
-      }
     `;
   }
 
@@ -365,10 +382,17 @@ class DataGrid extends HTMLElement {
     const grid = this.shadowRoot.querySelector('.data-grid');
     if (!grid) return;
 
-    grid.addEventListener('mousedown', this.handleMouseDown);
-    grid.addEventListener('mousemove', this.handleMouseMove);
-    grid.addEventListener('mouseup', this.handleMouseUp);
-    grid.addEventListener('mouseleave', this.handleMouseUp);
+    const events = [
+      ['mousedown', this.handleMouseDown],
+      ['mousemove', this.handleMouseMove],
+      ['mouseup', this.handleMouseUp],
+      ['touchstart', this.handleTouchStart, { passive: false }]
+    ];
+
+    events.forEach(([event, handler, options]) => {
+      grid.addEventListener(event, handler, options);
+    });
+
     document.addEventListener('mouseup', this.handleMouseUp);
     document.addEventListener('keydown', this.handleKeyDown);
   }
@@ -377,7 +401,7 @@ class DataGrid extends HTMLElement {
     if (e.button !== 0) return;
 
     const cell = this.getCellFromPoint(e.clientX, e.clientY);
-    if (!isValidCell(cell, this.config.rows, this.config.cols)) return;
+    if (!isValidCell(cell, this.rows, this.cols)) return;
 
     e.preventDefault();
     this.startDrag(cell);
@@ -387,7 +411,7 @@ class DataGrid extends HTMLElement {
     if (!this.state.isDragging) return;
 
     const cell = this.getCellFromPoint(e.clientX, e.clientY);
-    if (!isValidCell(cell, this.config.rows, this.config.cols)) return;
+    if (!isValidCell(cell, this.rows, this.cols)) return;
 
     e.preventDefault();
     this.updateDrag(cell);
@@ -402,6 +426,20 @@ class DataGrid extends HTMLElement {
   handleKeyDown(e) {
     if (e.key === 'Escape') this.cancelDrag();
   }
+
+  handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const cell = this.getCellFromPoint(touch.clientX, touch.clientY);
+    if (!isValidCell(cell, this.rows, this.cols)) return;
+
+    // Toggle the cell state
+    this.data.grid[cell.row][cell.col] = !this.data.grid[cell.row][cell.col];
+    this.updateCellStates();
+    this.dispatchChangeEvent();
+  }
+
+
 
   startDrag(cell) {
     this.state.isDragging = true;
@@ -439,43 +477,46 @@ class DataGrid extends HTMLElement {
   }
 
   clearSelectionVisuals() {
-    // Use cached cells if available, otherwise query
     const cells = this._cellsCache || this.shadowRoot.querySelectorAll('.data-cell[data-selecting]');
-    // Use more efficient iteration
-    for (let i = 0; i < cells.length; i++) {
-      delete cells[i].dataset.selecting;
-    }
+    Array.from(cells).forEach(cell => {
+      cell.removeAttribute('data-selecting');
+    });
   }
 
   getCellFromPoint(x, y) {
     const grid = this.shadowRoot.querySelector('.data-grid');
-    const table = grid.querySelector('table');
-    const tableRect = table.getBoundingClientRect();
-    const cells = table.querySelectorAll('td.data-cell');
+    if (!grid) return { row: -1, col: -1 };
 
+    const table = grid.querySelector('table');
+    if (!table) return { row: -1, col: -1 };
+
+    const elementBelow = document.elementFromPoint(x, y);
+    if (!elementBelow) return { row: -1, col: -1 };
+
+    const dataCell = elementBelow.closest('td.data-cell');
+    if (dataCell) {
+      return {
+        row: parseInt(dataCell.dataset.row),
+        col: parseInt(dataCell.dataset.col)
+      };
+    }
+
+    const cells = table.querySelectorAll('td.data-cell');
     if (cells.length === 0) return { row: -1, col: -1 };
 
-    const firstCell = cells[0];
-    const cellRect = firstCell.getBoundingClientRect();
-    const cellWidth = cellRect.width;
-    const cellHeight = cellRect.height;
-    const relativeX = x - tableRect.left;
-    const relativeY = y - tableRect.top;
+    const foundCell = Array.from(cells).find(cell => {
+      const rect = cell.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    });
 
-    // Account for header row and column with proper spacing
-    const headerHeight = 30 + 4;
-    const headerWidth = 80 + 4;
-    const adjustedX = relativeX - headerWidth;
-    const adjustedY = relativeY - headerHeight;
+    if (foundCell) {
+      return {
+        row: parseInt(foundCell.dataset.row),
+        col: parseInt(foundCell.dataset.col)
+      };
+    }
 
-    // Account for cell spacing (4px between cells)
-    const col = Math.floor(adjustedX / (cellWidth + 4));
-    const row = Math.floor(adjustedY / (cellHeight + 4));
-
-    return {
-      row: clamp(row, 0, this.config.rows - 1),
-      col: clamp(col, 0, this.config.cols - 1)
-    };
+    return { row: -1, col: -1 };
   }
 
   toggleSelection() {
@@ -491,40 +532,33 @@ class DataGrid extends HTMLElement {
   }
 
   updateCellStates() {
-    // Cache cells for better performance
     if (!this._cellsCache) {
       this._cellsCache = this.shadowRoot.querySelectorAll('.data-cell');
     }
     const cells = this._cellsCache;
 
-    // Use more efficient iteration and avoid unnecessary DOM queries
-    for (let i = 0; i < cells.length; i++) {
-      const cell = cells[i];
-      // Cache parseInt results
-      const row = cell.dataset.row | 0; // Faster than parseInt
+    Array.from(cells).forEach(cell => {
+      const row = cell.dataset.row | 0;
       const col = cell.dataset.col | 0;
       const isActive = this.data.grid[row][col];
 
-      // Only update if state actually changed - use faster attribute check
-      const hasActive = cell.dataset.active === 'true';
+      const hasActive = cell.hasAttribute('data-active');
       if (isActive !== hasActive) {
         if (isActive) {
-          cell.dataset.active = 'true';
+          cell.setAttribute('data-active', '');
         } else {
-          delete cell.dataset.active;
+          cell.removeAttribute('data-active');
         }
       }
-    }
+    });
   }
 
   updateSelection() {
-    // Cache cells for better performance
     if (!this._cellsCache) {
       this._cellsCache = this.shadowRoot.querySelectorAll('.data-cell');
     }
     const cells = this._cellsCache;
 
-    // Cache bounds calculation
     const boundsKey = `${this.state.dragStart?.row},${this.state.dragStart?.col}-${this.state.dragEnd?.row},${this.state.dragEnd?.col}`;
     if (!this._boundsCache || this._boundsCache.key !== boundsKey) {
       this._boundsCache = {
@@ -534,22 +568,20 @@ class DataGrid extends HTMLElement {
     }
     const bounds = this._boundsCache.bounds;
 
-    // Use more efficient iteration
-    for (let i = 0; i < cells.length; i++) {
-      const cell = cells[i];
-      const row = cell.dataset.row | 0; // Faster than parseInt
+    Array.from(cells).forEach(cell => {
+      const row = cell.dataset.row | 0;
       const col = cell.dataset.col | 0;
       const shouldBeSelecting = isInSelection(row, col, bounds);
-      const isCurrentlySelecting = cell.dataset.selecting === 'true';
+      const isCurrentlySelecting = cell.hasAttribute('data-selecting');
 
       if (shouldBeSelecting !== isCurrentlySelecting) {
-        if (shouldBeSelecting) {
-          cell.dataset.selecting = 'true';
+        if (isCurrentlySelecting) {
+          cell.removeAttribute('data-selecting');
         } else {
-          delete cell.dataset.selecting;
+          cell.setAttribute('data-selecting', '');
         }
       }
-    }
+    });
   }
 
   dispatchChangeEvent() {
@@ -560,62 +592,43 @@ class DataGrid extends HTMLElement {
     }));
   }
 
-  // Public API - Pure and functional
-  setData(newData) {
-    this.data.grid = newData;
-    this.updateCellStates();
-  }
-
   getData() {
     return this.data.grid;
   }
 
+  update(newOptions) {
+    if (newOptions.data) {
+      if (!Array.isArray(newOptions.data) || !Array.isArray(newOptions.data[0])) {
+        throw new Error('Data must be a 2D array');
+      }
+
+      const [newRows, newCols] = [newOptions.data.length, newOptions.data[0].length];
+      if (newRows !== this.rows || newCols !== this.cols) {
+        throw new Error(`Data dimensions must match current grid (${this.rows}x${this.cols})`);
+      }
+      this.data.grid = newOptions.data;
+    }
+
+    const generateLabels = (length, prefix) =>
+      Array.from({ length }, (_, i) => `${prefix} ${i + 1}`);
+
+    this.data.rowLabels = newOptions.rowLabels ||
+      (newOptions.data ? generateLabels(this.rows, 'Row') : this.data.rowLabels);
+    this.data.colLabels = newOptions.colLabels ||
+      (newOptions.data ? generateLabels(this.cols, 'Col') : this.data.colLabels);
+
+    this.render();
+    this.adjustColumnHeaderHeight();
+    this.updateCellStates();
+  }
+
   reset() {
-    this.data.grid = createGrid(this.config.rows, this.config.cols);
+    this.data.grid = createGrid(this.rows, this.cols);
     this.updateCellStates();
-  }
-
-  setRowLabels(labels) {
-    this.data.rowLabels = labels;
-    const rowLabels = this.shadowRoot.querySelectorAll('.row-label');
-    // Use more efficient iteration
-    for (let i = 0; i < rowLabels.length; i++) {
-      if (labels[i]) rowLabels[i].textContent = labels[i];
-    }
-  }
-
-  setColLabels(labels) {
-    this.data.colLabels = labels;
-    const colLabels = this.shadowRoot.querySelectorAll('.col-label');
-    // Use more efficient iteration
-    for (let i = 0; i < colLabels.length; i++) {
-      if (labels[i]) colLabels[i].textContent = labels[i];
-    }
-  }
-
-  updateTheme(themeVars = {}) {
-    // Temporarily disable transitions to prevent flash
-    this.style.transition = 'none';
-
-    // Apply theme variables to the host element efficiently
-    const style = this.style;
-    Object.entries(themeVars).forEach(([property, value]) => {
-      style.setProperty(property, value);
-    });
-
-    // Force a reflow to ensure CSS variables are applied
-    this.offsetHeight;
-
-    // Ensure cell states are synchronized after theme change
-    this.updateCellStates();
-
-    // Re-enable transitions after a brief delay
-    requestAnimationFrame(() => {
-      this.style.transition = 'all 0.2s ease';
-    });
   }
 }
 
 customElements.define('data-grid', DataGrid);
 
 export default DataGrid;
+

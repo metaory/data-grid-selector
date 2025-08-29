@@ -1,152 +1,90 @@
-
-<div class="mobile-warning" id="mobileWarning">
-  <div style="font-size: clamp(2rem, 15vw, 3rem); margin-bottom: 20px">
-    <svg xmlns="http://www.w3.org/2000/svg" width="clamp(64px, 20vw, 128px)" height="clamp(64px, 20vw, 128px)" viewBox="0 0 24 24">
-      <!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
-      <path
-        fill="currentColor"
-        fill-rule="evenodd"
-        d="M19 9v6a7 7 0 1 1-14 0V9a7 7 0 0 1 14 0m-7-4.75a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0V5a.75.75 0 0 1 .75-.75"
-        clip-rule="evenodd"
-      />
-    </svg>
-  </div>
-  <h2>Desktop Only</h2>
-  <p>This component works best with a mouse. Touch interactions may be limited.</p>
-  <div class="warning-buttons">
-    <button class="dismiss-btn" id="dismissBtn">Got it</button>
-  </div>
+<div id="mobile-warning" class="mobile-warning hidden">
+  <iconify-icon icon="mdi:desktop-classic"></iconify-icon>
+  <h3>Desktop Optimized</h3>
+  <p>Best experienced with mouse and keyboard</p>
+  <button onclick="this.parentElement.classList.add('hidden')">Got it</button>
 </div>
 
-<script>
-
-// Mobile warning - functional approach
-const dismissWarning = () => {
-  const warning = document.getElementById('mobileWarning')
-  warning?.classList.add('hidden')
-}
-
-const showMobileWarning = () => {
-  // Simple touch detection - much cleaner!
-  const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0
-  
-  const warning = document.getElementById('mobileWarning')
-  warning?.classList[isTouchDevice ? 'remove' : 'add']('hidden')
-}
-
-// Setup event listeners
-const setupEventListeners = () => {
-  const dismissBtn = document.getElementById('dismissBtn')
-  dismissBtn?.addEventListener('click', dismissWarning)
-}
-
-// Initialize
-showMobileWarning()
-setupEventListeners()
-
+<script is:inline>
+  if ('ontouchstart' in window) {
+    document.getElementById('mobile-warning')?.classList.remove('hidden');
+  }
 </script>
 
 <style>
   .mobile-warning {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    padding: 20px;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
     text-align: center;
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
+    gap: 1.5rem;
     max-width: 100vw;
-    max-height: 100vh;
+    overflow: hidden;
   }
 
-  .mobile-warning.hidden {
-    display: none;
+  .mobile-warning.hidden { display: none; }
+
+  .mobile-warning iconify-icon {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.6));
+    width: 48px;
+    height: 48px;
   }
 
-  .mobile-warning h2 {
-    color: #f1f5f9;
-    font-size: clamp(1.5rem, 5vw, 2rem);
-    margin-bottom: 20px;
-    font-family: BungeeShade, monospace;
+  .mobile-warning h3 {
+    color: var(--accent-secondary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
   }
 
   .mobile-warning p {
-    color: #94a3b8;
-    font-size: clamp(1rem, 4vw, 1.2rem);
-    margin-bottom: 30px;
-    max-width: min(300px, 90vw);
+    color: var(--text-primary);
+    font-size: 1.1rem;
     line-height: 1.4;
-    padding: 0 10px;
-  }
-
-  .mobile-warning .warning-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
+    margin: 0;
+    max-width: 300px;
   }
 
   .mobile-warning button {
-    padding: clamp(12px, 4vw, 16px) clamp(24px, 8vw, 32px);
+    background: var(--accent-primary);
+    color: var(--surface-primary);
     border: none;
-    border-radius: 18px;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 1rem;
     cursor: pointer;
-    font-size: clamp(16px, 5vw, 20px);
-    font-weight: bold;
-    transition: all 0.2s ease;
-    min-width: 120px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 40px rgba(96, 165, 250, 0.4);
   }
 
-  .mobile-warning .dismiss-btn {
-    background: white;
-    color: black;
-  }
-
-  .mobile-warning .dismiss-btn:hover {
-    background: #2563eb;
+  .mobile-warning button:hover {
+    background: var(--accent-secondary);
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 25px rgba(167, 139, 250, 0.4);
   }
 
-  /* Hide on desktop devices with mouse capability */
-  @media (hover: hover) and (pointer: fine) {
+  @media (max-width: 768px) {
     .mobile-warning {
-      display: none !important;
-    }
-  }
-
-  /* Additional mobile optimizations */
-  @media (max-width: 480px) {
-    .mobile-warning {
-      padding: 15px;
+      padding: 1.5rem;
     }
     
-    .mobile-warning h2 {
-      margin-bottom: 15px;
+    .mobile-warning h3 {
+      font-size: 1.3rem;
     }
     
     .mobile-warning p {
-      margin-bottom: 25px;
-    }
-  }
-
-  /* Prevent any scrolling or overflow on mobile */
-  @media (max-width: 768px) {
-    body {
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
+      font-size: 1rem;
+      max-width: 280px;
     }
   }
 </style>

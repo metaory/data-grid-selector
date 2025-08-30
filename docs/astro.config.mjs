@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import pkg from '../package.json';
 // import icon from "astro-icon";
 
 // https://astro.build/config
@@ -8,6 +9,9 @@ export default defineConfig({
   site: 'https://metaory.github.io',
   // integrations: [icon()],
   vite: {
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version)
+    },
     resolve: {
       alias: {
         '@': '/src',

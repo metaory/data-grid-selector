@@ -4,6 +4,9 @@ import MobileWarning from '../components/MobileWarning.astro';
 import '@fontsource/bungee-shade';
 import '@fontsource/bungee';
 import '@fontsource/baloo-2';
+// biome-ignore lint/correctness/noUnusedVariables: used in template below
+declare const __APP_VERSION__: string;
+const appVersion = __APP_VERSION__;
 ---
 
 <!doctype html>
@@ -44,6 +47,7 @@ import '@fontsource/baloo-2';
 		<slot />
 		<MobileWarning />
 		<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+		<div class="version-badge">v{appVersion}</div>
 	</body>
 </html>
 
@@ -74,6 +78,22 @@ import '@fontsource/baloo-2';
   data-grid {
     width: 100%;
     display: block;
+  }
+
+  .version-badge {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    backdrop-filter: blur(10px);
+    color: var(--accent-secondary);
+    mix-blend-mode: overlay;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 2000;
+    opacity: .9;
   }
 </style>
 

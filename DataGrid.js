@@ -1,7 +1,5 @@
 
 
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
 const throttle = (fn, delay) => {
   let lastCall = 0;
   return (...args) => {
@@ -136,6 +134,8 @@ class DataGrid extends HTMLElement {
     this._cellsCache = null;
     this._boundsCache = null;
     this._headerHeight = null;
+    this._resizeObserver = null;
+    this._onWindowResize = null;
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -185,6 +185,7 @@ class DataGrid extends HTMLElement {
       this.shadowRoot.appendChild(grid);
     }
 
+    this.style.setProperty('--grid-cols', `${this.cols}`);
     this._cellsCache = null;
   }
 
@@ -208,7 +209,8 @@ class DataGrid extends HTMLElement {
         --grid-text: #1f2937;
         --grid-text-muted: #64748b;
         --grid-header-bg: #f1f5f9;
-        --grid-cell-size: 28px;
+        --grid-cols: 9;
+        --grid-cell-size: min(56px, max(10px, calc((100% - var(--grid-header-width) - (var(--grid-cols) + 1) * var(--grid-cell-spacing)) / var(--grid-cols))));
         --grid-header-width: 80px;
         --grid-cell-spacing: 4px;
         --grid-cell-radius: 8px;
@@ -217,6 +219,9 @@ class DataGrid extends HTMLElement {
         --grid-selection-bg: rgba(59, 130, 246, 0.25);
         --grid-selection-active-bg: rgba(59, 130, 246, 0.7);
         --grid-selection-border: var(--grid-primary);
+        display: block;
+        width: 100%;
+        max-width: 100%;
       }
 
       .data-grid {
@@ -231,18 +236,19 @@ class DataGrid extends HTMLElement {
         background: var(--grid-bg);
         padding: 16px;
         border-radius: var(--grid-radius);
+        overflow: hidden;
       }
 
       .data-table {
-        width: fit-content;
+        width: 100%;
         border-collapse: separate;
         border-spacing: var(--grid-cell-spacing);
         table-layout: fixed;
         background: var(--grid-bg);
         border-radius: var(--grid-radius);
-        max-width: none;
+        max-width: 100%;
         box-sizing: border-box;
-        overflow: visible;
+        overflow: hidden;
       }
 
       .data-table th,
@@ -255,11 +261,7 @@ class DataGrid extends HTMLElement {
       .data-table th:not(.corner-cell):not(.row-label),
       .data-table td:not(.row-label) {
         width: var(--grid-cell-size);
-        min-width: var(--grid-cell-size);
-        max-width: var(--grid-cell-size);
         height: var(--grid-cell-size);
-        min-height: var(--grid-cell-size);
-        max-height: var(--grid-cell-size);
       }
 
       .data-table tbody {
@@ -275,8 +277,6 @@ class DataGrid extends HTMLElement {
       .corner-cell {
         width: var(--grid-header-width);
         height: 30px;
-        min-width: var(--grid-header-width);
-        max-width: var(--grid-header-width);
         background: var(--grid-header-bg);
         color: var(--grid-text-muted);
         border-radius: var(--grid-radius);
@@ -318,10 +318,6 @@ class DataGrid extends HTMLElement {
       .row-label {
         width: var(--grid-header-width);
         height: var(--grid-cell-size);
-        min-width: var(--grid-header-width);
-        max-width: var(--grid-header-width);
-        min-height: var(--grid-cell-size);
-        max-height: var(--grid-cell-size);
         background: var(--grid-header-bg);
         color: var(--grid-text-muted);
         border-radius: var(--grid-cell-radius);
@@ -338,18 +334,14 @@ class DataGrid extends HTMLElement {
       .data-cell {
         width: var(--grid-cell-size);
         height: var(--grid-cell-size);
-        min-width: var(--grid-cell-size);
-        max-width: var(--grid-cell-size);
-        min-height: var(--grid-cell-size);
-        max-height: var(--grid-cell-size);
         transition: background-color 0.15s ease;
         cursor: pointer;
         border-radius: var(--grid-cell-radius);
         background: var(--grid-cell-bg);
         box-sizing: border-box;
         position: relative;
-        flex-shrink: 0;
-        flex-grow: 0;
+        flex-shrink: 1;
+        flex-grow: 1;
       }
 
       .data-cell[data-active] {
@@ -396,6 +388,17 @@ class DataGrid extends HTMLElement {
     document.addEventListener('mouseup', this.handleMouseUp);
     document.addEventListener('keydown', this.handleKeyDown);
   }
+
+  observeResize() {}
+
+  disconnectedCallback() {
+    if (this._resizeObserver) { this._resizeObserver.disconnect(); this._resizeObserver = null; }
+    if (this._onWindowResize) { window.removeEventListener('resize', this._onWindowResize); this._onWindowResize = null; }
+    document.removeEventListener('mouseup', this.handleMouseUp);
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  adaptSize() {}
 
   handleMouseDown(e) {
     if (e.button !== 0) return;
@@ -620,6 +623,7 @@ class DataGrid extends HTMLElement {
     this.render();
     this.adjustColumnHeaderHeight();
     this.updateCellStates();
+    this.style.setProperty('--grid-cols', `${this.cols}`);
   }
 
   reset() {

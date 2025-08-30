@@ -215,7 +215,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
     gap: 24px;
-    width: 60vw;
+    width: 90vw;
     margin: auto;
     padding-top: 50px;
     justify-items: center;
@@ -226,7 +226,8 @@
     border-radius: 22px;
     padding: 24px;
     box-shadow: 0 4px 6px var(--shadow-medium);
-    width: 500px;
+    width: 100%;
+    max-width: 500px;
     height: fit-content;
 
     h3 {
@@ -247,8 +248,9 @@
   #skills-grid-placeholder {
     background: var(--surface-tertiary);
     border-radius: 22px;
-    padding: 20px 42px 20px 20px ;
+    padding: 20px 50px 20px 20px ;
     width: 100%;
+    display: block;
     margin-bottom: 16px;
     min-height: 200px;
     /* overflow-x: auto; */
@@ -391,4 +393,6 @@
       outline: solid 4px currentColor;
     }
   }
+
 </style>
+

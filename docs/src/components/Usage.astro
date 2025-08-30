@@ -146,7 +146,7 @@ h2 {
 
 .usage-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(700px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 700px), 1fr));
   gap: clamp(0.75rem, 2vw, 1.5rem);
   width: 100%;
   overflow-x: hidden;
@@ -155,7 +155,8 @@ h2 {
 
 .usage-item {
   display: flex;
-  width: max-content;
+  width: 100%;
+  max-width: 700px;
   flex-direction: column;
   padding: clamp(1rem, 3vw, 2.5rem);
   background: var(--surface-secondary);
